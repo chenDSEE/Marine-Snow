@@ -7,11 +7,11 @@
 #=================================== config ===================================#
 # path to main source code
 TARGET_PACKAGE = MarineSnow
-BINARY_NAME = Server
+BINARY_NAME = server
 
 
 #===================================  CMD  ====================================#
-.PHONY: debug build run clean vet fmt help
+.PHONY: debug build run clean vet fmt help check
 
 debug:
 # go build -gcflags="-N -l" $(TARGET_PACKAGE)
@@ -40,6 +40,9 @@ vet:
 fmt:
 	@echo -e "\033[1;36m====== make fmt ======\033[0m"
 	go fmt ./...
+
+check: clean vet fmt
+	@echo -e "\033[1;36m====== all format and check have finish, you can add and commit now ======\033[0m"
 
 help:
 	@echo 'Usage: make <OPTIONS>'

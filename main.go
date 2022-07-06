@@ -7,12 +7,10 @@ import (
 )
 
 func helloHandler(ctx *framework.Context) error {
-	fmt.Println("in hello handler func:", ctx.Request().URL.String())
 	return nil
 }
 
 func timedemoHandler(ctx *framework.Context) error {
-	fmt.Println("in timedemoHandler func:", ctx.Request().URL.String())
 	return nil
 }
 

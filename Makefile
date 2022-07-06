@@ -11,7 +11,7 @@ BINARY_NAME = server
 
 
 #===================================  CMD  ====================================#
-.PHONY: debug build run clean vet fmt help check
+.PHONY: debug build run clean vet fmt help checkout
 
 debug:
 # go build -gcflags="-N -l" $(TARGET_PACKAGE)
@@ -41,8 +41,9 @@ fmt:
 	@echo -e "\033[1;36m====== make fmt ======\033[0m"
 	go fmt ./...
 
-check: clean vet fmt
+checkout: clean vet fmt
 	@echo -e "\033[1;36m====== all format and check have finish, you can add and commit now ======\033[0m"
+	git status
 
 help:
 	@echo 'Usage: make <OPTIONS>'
@@ -55,6 +56,7 @@ help:
 	@echo '    build              Build project for current platform'
 	@echo '    debug              Build project for current platform in debug mode'
 	@echo '    run                Build project for current platform in debug mode, and run it'
+	@echo '    checkout           Do before checkout to git, perform clean, vet and fmt.'
 
 
 # # memoty escapes analy

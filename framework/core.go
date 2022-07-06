@@ -1,12 +1,11 @@
 package framework
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 )
 
-type HandlerFunc func(c Context) error
+type HandlerFunc func(c *Context) error
 
 type Core struct {
 	name   string
@@ -29,13 +28,9 @@ func (core *Core) ServeHTTP(rsp http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	ctx := Context{
-		Rsp: rsp,
-		Req: req,
-		Ctx: context.Background(),
-	}
+	ctx := NewContext(rsp, req)
 
-	fun(ctx)
+	_ = fun(ctx) // TODO: print the accessed URL and handler name before jump to fun()
 }
 
 func (c Core) RegisterHandlerFunc(url string, fun HandlerFunc) {

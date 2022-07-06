@@ -6,12 +6,25 @@ import (
 	"net/http"
 )
 
+func helloHandler(ctx framework.Context) error {
+	fmt.Println("in hello handler func:", ctx.Req.URL.String())
+	return nil
+}
+
+const SERVER_ADDR = "127.0.0.1:80"
+
 func main() {
-	fmt.Println("hello MarineSnow")
+	fmt.Printf("welcome to MarineSnow, start now. Listen on [%s]\n", SERVER_ADDR)
+	core := framework.NewCore()
 	server := &http.Server{
-		Addr:    "127.0.0.1:80",
-		Handler: framework.NewCore(),
+		Addr:    SERVER_ADDR,
+		Handler: core,
 	}
 
-	server.ListenAndServe()
+	/* register HTTP handler and route */
+	core.RegisterHandlerFunc("/hello", helloHandler)
+
+	_ = server.ListenAndServe() // 依然借助 http.Server 来启动 http 监听、处理 connect
+
+	fmt.Println("bye~, exit MarineSnow now.")
 }

@@ -54,8 +54,8 @@ func main() {
 	}
 
 	/* register HTTP handler and route */
-	core.RegisterHandlerFunc("/hello", helloHandler)
-	core.RegisterHandlerFunc("/timeout", timedemoHandler)
+	core.GetRegisterFunc("/hello", helloHandler)
+	core.GetRegisterFunc("/timeout", timedemoHandler)
 
 	_ = server.ListenAndServe() // 依然借助 http.Server 来启动 http 监听、处理 connect
 

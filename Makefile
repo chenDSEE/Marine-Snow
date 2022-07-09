@@ -16,7 +16,7 @@ BINARY_NAME = server
 debug:
 # go build -gcflags="-N -l" $(TARGET_PACKAGE)
 	@echo -e "\033[1;36m====== make debug ======\033[0m"
-	go build -gcflags="-N -l" -o ${BINARY_NAME} .
+	go build -gcflags="all=-N -l" -o ${BINARY_NAME} .
 
 build:
 # go build $(TARGET_PACKAGE)

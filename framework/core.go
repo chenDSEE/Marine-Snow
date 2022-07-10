@@ -3,48 +3,66 @@ package framework
 import (
 	"fmt"
 	"net/http"
-	"reflect"
-	"runtime"
+	"strings"
 )
 
 type HandlerFunc func(c *Context) error
 
 type Core struct {
-	name   string
-	router map[string]handlerFuncEntry
+	name    string
+	routers map[string]*rTree // router tire tree
 }
 
 type handlerFuncEntry struct {
 	funName string
+	pattern string
 	fun     HandlerFunc
 }
 
 func NewCore() *Core {
-	return &Core{
-		name:   "MarineSnow Core demo",
-		router: make(map[string]handlerFuncEntry),
+	core := &Core{
+		name:    "MarineSnow Core demo",
+		routers: make(map[string]*rTree),
 	}
+
+	return core
 }
 
 // as a HTTP URL router
 func (core *Core) ServeHTTP(rsp http.ResponseWriter, req *http.Request) {
 	url := req.URL.String()
-	funEntry, ok := core.router[url]
-	if ok == false {
-		fmt.Printf("can not find any handler for [%s]\n", req.URL.String())
+	method := strings.ToUpper(req.Method)
+	fEntry := core.getHandlerEntry(method, url)
+	if fEntry == nil {
+		fmt.Printf("can not find any handler for [%s:%s]\n", method, url)
 		return
 	}
 
-	fmt.Printf("==> request[%s], forwarding to [%s]\n", url, funEntry.funName)
+	fmt.Printf("==> request[%s:%s], match [%s], forwarding to [%s]\n",
+		method, url, fEntry.pattern, fEntry.funName)
+
 	ctx := NewContext(rsp, req)
 
-	_ = funEntry.fun(ctx)
+	_ = fEntry.fun(ctx)
 }
 
-func (c Core) RegisterHandlerFunc(url string, fun HandlerFunc) {
-	name := runtime.FuncForPC(reflect.ValueOf(fun).Pointer()).Name()
-	c.router[url] = handlerFuncEntry{
-		funName: name + "()",
-		fun:     fun,
+func (core *Core) NewRouteGroup(prefix string) RouteGroup {
+	return newPrefixGroup(core, prefix)
+}
+
+func (core *Core) DumpRoutes() {
+	for _, router := range core.routers {
+		router.printRouteTree()
+		fmt.Println("")
 	}
+}
+
+func (core *Core) DumpMethodRoute(method string) {
+	method = strings.ToUpper(method)
+	router, ok := core.routers[method]
+	if !ok {
+		return
+	}
+
+	router.printRouteTree()
 }

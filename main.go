@@ -58,14 +58,13 @@ func main() {
 	}
 
 	/* register HTTP handler and route */
-	/*
-		core.GetRegisterFunc("/hello", nilHandler)
-		core.GetRegisterFunc("/timeout", nilHandler)
-		core.GetRegisterFunc("/timeout/demo", nilHandler)
-		core.GetRegisterFunc("/hello/demo", nilHandler)
-		//core.GetRegisterFunc("/hello/demo", nilHandler) // conflict with /hello/demo
-		core.PostRegisterFunc("/hello/demo", nilHandler) // not conflict with GET /hello/demo
-	*/
+	core.GetRegisterFunc("/hello", nilHandler)
+	core.GetRegisterFunc("/timeout", nilHandler)
+	core.GetRegisterFunc("/timeout/demo", nilHandler)
+	core.GetRegisterFunc("/hello/demo", nilHandler)
+	//core.GetRegisterFunc("/hello/demo", nilHandler) // conflict with /hello/demo
+	core.PostRegisterFunc("/hello/demo", nilHandler) // not conflict with GET /hello/demo
+
 	// named parameter
 	core.PostRegisterFunc("/parameter/:id", nilHandler)
 	//core.PostRegisterFunc("/parameter/:name", nilHandler) // conflict with /parameter/:id
@@ -73,6 +72,22 @@ func main() {
 	//core.PostRegisterFunc("/parameter/:id/:name", nilHandler) // conflict with /parameter/:id/demo
 	core.PostRegisterFunc("/parameter/:id/:name/end", nilHandler)
 	core.PostRegisterFunc("/parameter/:age/:name/new-end", nilHandler)
+
+	// group route register
+	group := core.NewRouteGroup("/group/route")
+	group.GetRegisterFunc("/name", nilHandler)
+	group.GetRegisterFunc("/time", nilHandler)
+	group.GetRegisterFunc("/id/:name", nilHandler)
+	//core.GetRegisterFunc("/group/route/name", nilHandler) // conflict with group.GetRegisterFunc("/name", nilHandler)
+
+	core.GetRegisterFunc("/group/route/dup", nilHandler)
+	//group.GetRegisterFunc("/dup", nilHandler) // conflict with core.GetRegisterFunc("/group/route/dup", nilHandler)
+
+	// inner RouteGroup
+	upGroup := core.NewRouteGroup("/up/group")
+	upGroup.GetRegisterFunc("/route-1", nilHandler)
+	innerGroup := upGroup.Group("/inner")
+	innerGroup.GetRegisterFunc("/route-2", nilHandler)
 
 	_ = server.ListenAndServe() // 依然借助 http.Server 来启动 http 监听、处理 connect
 

@@ -25,11 +25,6 @@ func NewCore() *Core {
 		routers: make(map[string]*rTree),
 	}
 
-	core.routers["GET"] = newRouteTree("GET")
-	core.routers["POST"] = newRouteTree("POST")
-	//core.routers["PUT"]    = newRouteTree("PUT")
-	//core.routers["DELETE"] = newRouteTree("DELETE")
-
 	return core
 }
 
@@ -49,4 +44,8 @@ func (core *Core) ServeHTTP(rsp http.ResponseWriter, req *http.Request) {
 	ctx := NewContext(rsp, req)
 
 	_ = fEntry.fun(ctx)
+}
+
+func (core *Core) NewRouteGroup(prefix string) RouteGroup {
+	return newPrefixGroup(core, prefix)
 }

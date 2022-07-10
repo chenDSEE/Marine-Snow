@@ -49,3 +49,20 @@ func (core *Core) ServeHTTP(rsp http.ResponseWriter, req *http.Request) {
 func (core *Core) NewRouteGroup(prefix string) RouteGroup {
 	return newPrefixGroup(core, prefix)
 }
+
+func (core *Core) DumpRoutes() {
+	for _, router := range core.routers {
+		router.printRouteTree()
+		fmt.Println("")
+	}
+}
+
+func (core *Core) DumpMethodRoute(method string) {
+	method = strings.ToUpper(method)
+	router, ok := core.routers[method]
+	if !ok {
+		return
+	}
+
+	router.printRouteTree()
+}

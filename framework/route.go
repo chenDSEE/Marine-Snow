@@ -24,9 +24,6 @@ func (core *Core) registerHelper(method, url string, fun HandlerFunc) {
 		fmt.Println()
 		log.Fatalf("add %s route Fatal with:[%s]\n", method, err.Error())
 	}
-
-	// for debug
-	core.routers[method].printRouteTree()
 }
 
 func (core *Core) GetRegisterFunc(url string, fun HandlerFunc) {

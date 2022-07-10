@@ -23,11 +23,11 @@ func newRouteTree(name string) *rTree {
 func (rtree *rTree) addRoute(url string, handler handlerFuncEntry) error {
 	/* if uri existed, return error */
 	if n := rtree.root.matchNode(url); n != nil {
-		return errors.New("Route conflict: " + url + "with [" + n.fullUrl + "]")
+		return errors.New("Route conflict: " + url + " with [" + n.fullUrl + "]")
 	}
 
-	segments := strings.Split(url, "/")
-	//fmt.Printf("all segment: %q\n", segments)
+	segments := strings.Split(url, "/") // "" as root node
+
 	/* find the right place to create and insert current node for each segment */
 	currNode := rtree.root
 
@@ -78,7 +78,7 @@ func (rtree *rTree) printRouteTree() {
 
 	fmt.Printf("===== %s tire tree dump =====\n", rtree.name)
 	for i := 0; i < len(entries); i++ {
-		fmt.Printf("[%s] --> [%s]\n", entries[i].url, entries[i].handlerName)
+		fmt.Printf("+ [%s] --> [%s]\n", entries[i].url, entries[i].handlerName)
 	}
 }
 

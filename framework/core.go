@@ -15,6 +15,7 @@ type Core struct {
 
 type handlerFuncEntry struct {
 	funName string
+	pattern string
 	fun     HandlerFunc
 }
 
@@ -42,7 +43,9 @@ func (core *Core) ServeHTTP(rsp http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	fmt.Printf("==> request[%s], forwarding to [%s]\n", url, fEntry.funName)
+	fmt.Printf("==> request[%s:%s], match [%s], forwarding to [%s]\n",
+		method, url, fEntry.pattern, fEntry.funName)
+
 	ctx := NewContext(rsp, req)
 
 	_ = fEntry.fun(ctx)

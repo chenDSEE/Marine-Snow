@@ -12,6 +12,10 @@ func helloHandler(ctx *framework.Context) error {
 	return nil
 }
 
+func nilHandler(ctx *framework.Context) error {
+	return nil
+}
+
 type info struct {
 	name string
 	data string
@@ -54,8 +58,21 @@ func main() {
 	}
 
 	/* register HTTP handler and route */
-	core.GetRegisterFunc("/hello", helloHandler)
-	core.GetRegisterFunc("/timeout", timedemoHandler)
+	/*
+		core.GetRegisterFunc("/hello", nilHandler)
+		core.GetRegisterFunc("/timeout", nilHandler)
+		core.GetRegisterFunc("/timeout/demo", nilHandler)
+		core.GetRegisterFunc("/hello/demo", nilHandler)
+		//core.GetRegisterFunc("/hello/demo", nilHandler) // conflict with /hello/demo
+		core.PostRegisterFunc("/hello/demo", nilHandler) // not conflict with GET /hello/demo
+	*/
+	// named parameter
+	core.PostRegisterFunc("/parameter/:id", nilHandler)
+	//core.PostRegisterFunc("/parameter/:name", nilHandler) // conflict with /parameter/:id
+	core.PostRegisterFunc("/parameter/:id/demo", nilHandler)
+	//core.PostRegisterFunc("/parameter/:id/:name", nilHandler) // conflict with /parameter/:id/demo
+	core.PostRegisterFunc("/parameter/:id/:name/end", nilHandler)
+	core.PostRegisterFunc("/parameter/:age/:name/new-end", nilHandler)
 
 	_ = server.ListenAndServe() // 依然借助 http.Server 来启动 http 监听、处理 connect
 

@@ -93,5 +93,5 @@ func main() {
 
 	_ = server.ListenAndServe() // 依然借助 http.Server 来启动 http 监听、处理 connect
 
-	fmt.Println("bye~, exit MarineSnow now.")
+	fmt.Println("bye~, exit Marine-Snow now.")
 }

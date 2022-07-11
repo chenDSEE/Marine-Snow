@@ -20,7 +20,7 @@ func newRouteTree(name string) *rTree {
 	}
 }
 
-func (rtree *rTree) addRoute(url string, handler handlerFuncEntry) error {
+func (rtree *rTree) addRoute(url string, handlers []handlerFuncEntry) error {
 	/* if uri existed, return error */
 	if n := rtree.root.matchNode(url); n != nil {
 		return errors.New("Route conflict: " + url + " with [" + n.fullUrl + "]")
@@ -57,7 +57,7 @@ nextRound:
 		if isEnd == true {
 			segmentNode.isEnd = true
 			segmentNode.fullUrl = url
-			segmentNode.handlerEntry = handler
+			segmentNode.handlerEntryList = handlers
 		}
 
 		currNode.children = append(currNode.children, segmentNode) // register into parent node
@@ -87,7 +87,7 @@ func travelRouteTable(n *node, entries []routeEntry) []routeEntry {
 	if n.isEnd == true {
 		entry := routeEntry{
 			url:         n.fullUrl,
-			handlerName: n.handlerEntry.funName,
+			handlerName: n.handlerEntryList[len(n.handlerEntryList)-1].funName,
 		}
 		entries = append(entries, entry)
 	}
@@ -99,21 +99,21 @@ func travelRouteTable(n *node, entries []routeEntry) []routeEntry {
 	return entries
 }
 
-func (rtree *rTree) FindHandlerEntry(url string) *handlerFuncEntry {
+func (rtree *rTree) FindHandlerEntryList(url string) ([]handlerFuncEntry, string) {
 	matchNode := rtree.root.matchNode(url)
 	if matchNode == nil {
-		return nil
+		return nil, ""
 	}
 
-	return &matchNode.handlerEntry
+	return matchNode.handlerEntryList, matchNode.fullUrl
 }
 
 type node struct {
-	segment      string
-	fullUrl      string
-	isEnd        bool
-	handlerEntry handlerFuncEntry
-	children     []*node
+	segment          string
+	fullUrl          string
+	isEnd            bool
+	handlerEntryList []handlerFuncEntry
+	children         []*node
 }
 
 func newNode() *node {

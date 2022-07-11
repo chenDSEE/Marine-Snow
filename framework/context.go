@@ -2,6 +2,7 @@ package framework
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"time"
 )
@@ -11,13 +12,18 @@ type Context struct {
 	req *http.Request
 
 	ctx context.Context
+
+	hEntryIndex int
+	hEntryList  []handlerFuncEntry
 }
 
 func NewContext(rsp http.ResponseWriter, req *http.Request) *Context {
 	return &Context{
-		rsp: rsp,
-		req: req,
-		ctx: req.Context(),
+		rsp:         rsp,
+		req:         req,
+		ctx:         req.Context(),
+		hEntryIndex: -1,
+		hEntryList:  nil,
 	}
 }
 
@@ -51,4 +57,24 @@ func (c *Context) Request() *http.Request {
 
 func (c *Context) ResponseWriter() http.ResponseWriter {
 	return c.rsp
+}
+
+func (c *Context) SetHandlerList(list []handlerFuncEntry) {
+	c.hEntryList = list
+}
+
+func (c *Context) NextHandler() error {
+	c.hEntryIndex++
+	if c.hEntryIndex < len(c.hEntryList) {
+		entry := c.hEntryList[c.hEntryIndex]
+
+		fmt.Printf("--> [%d/%d] forward to [%s]\n",
+			c.hEntryIndex+1, len(c.hEntryList), entry.funName)
+
+		if err := entry.fun(c); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

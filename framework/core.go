@@ -9,8 +9,9 @@ import (
 type HandlerFunc func(c *Context) error
 
 type Core struct {
-	name    string
-	routers map[string]*rTree // router tire tree
+	name        string
+	middlewares []HandlerFunc
+	routers     map[string]*rTree // router tire tree
 }
 
 type handlerFuncEntry struct {
@@ -21,8 +22,9 @@ type handlerFuncEntry struct {
 
 func NewCore() *Core {
 	core := &Core{
-		name:    "MarineSnow Core demo",
-		routers: make(map[string]*rTree),
+		name:        "MarineSnow Core demo",
+		middlewares: make([]HandlerFunc, 0),
+		routers:     make(map[string]*rTree),
 	}
 
 	return core
@@ -32,18 +34,22 @@ func NewCore() *Core {
 func (core *Core) ServeHTTP(rsp http.ResponseWriter, req *http.Request) {
 	url := req.URL.String()
 	method := strings.ToUpper(req.Method)
-	fEntry := core.getHandlerEntry(method, url)
-	if fEntry == nil {
+	fEntryList, pattern := core.getHandlerEntryList(method, url)
+	if fEntryList == nil || len(fEntryList) == 0 {
 		fmt.Printf("can not find any handler for [%s:%s]\n", method, url)
 		return
 	}
 
-	fmt.Printf("==> request[%s:%s], match [%s], forwarding to [%s]\n",
-		method, url, fEntry.pattern, fEntry.funName)
+	fmt.Printf("==> request[%s:%s], match [%s], start pipeline handle:\n",
+		method, url, pattern)
 
 	ctx := NewContext(rsp, req)
+	ctx.SetHandlerList(fEntryList)
 
-	_ = fEntry.fun(ctx)
+	if err := ctx.NextHandler(); err != nil {
+		fmt.Printf("Catch an error: %s\n", err.Error())
+		return
+	}
 }
 
 func (core *Core) NewRouteGroup(prefix string) RouteGroup {
@@ -65,4 +71,8 @@ func (core *Core) DumpMethodRoute(method string) {
 	}
 
 	router.printRouteTree()
+}
+
+func (core *Core) AppendDefaultMiddleware(middlewareFun ...HandlerFunc) {
+	core.middlewares = append(core.middlewares, middlewareFun...)
 }

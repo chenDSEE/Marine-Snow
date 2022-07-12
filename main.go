@@ -2,49 +2,78 @@ package main
 
 import (
 	"MarineSnow/framework"
-	"MarineSnow/framework/middleware"
-	"context"
 	"fmt"
 	"net/http"
-	"time"
 )
 
-func helloHandler(ctx *framework.Context) error {
-	return nil
-}
+// curl "http://127.0.0.1:80/query?int=123&int64=321&float32=1.23&float64=3.21&bool=True&string=demo-string&stringSlice=demo-stringSlice-1&stringSlice=demo-stringSlice-2"
+func queryHandler(ctx *framework.Context) error {
+	key := ""
 
-func nilHandler(ctx *framework.Context) error {
-	return nil
-}
+	{
+		key = "int"
+		val, ok := ctx.QueryInt(key, -1)
+		fmt.Printf("QueryInt(%s): %d, %v\n", key, val, ok)
 
-type info struct {
-	name string
-	data string
-}
+		key = "non-int"
+		non, ok := ctx.QueryInt(key, -1)
+		fmt.Printf("QueryInt(%s): %d, %v\n", key, non, ok)
+	}
+	{
+		key = "int64"
+		val, ok := ctx.QueryInt64(key, -1)
+		fmt.Printf("QueryInt64(%s): %d, %v\n", key, val, ok)
 
-func timedemoHandler(ctx *framework.Context) error {
-	infoChan := make(chan *info, 1)
+		key = "non-int64"
+		non, ok := ctx.QueryInt64(key, -1)
+		fmt.Printf("QueryInt64(%s): %d, %v\n", key, non, ok)
+	}
+	{
+		key = "float32"
+		val, ok := ctx.QueryFloat32(key, float32(0.0))
+		fmt.Printf("QueryFloat32(%s): %f, %v\n", key, val, ok)
 
-	timeoutCtx, cancel := context.WithTimeout(ctx.BaseContext(), time.Duration(2*time.Second))
-	defer cancel()
+		key = "non-float32"
+		non, ok := ctx.QueryFloat32(key, float32(0.0))
+		fmt.Printf("QueryFloat32(%s): %f, %v\n", key, non, ok)
+	}
+	{
+		key = "float64"
+		val, ok := ctx.QueryFloat64(key, 0.0)
+		fmt.Printf("QueryFloat64(%s): %f, %v\n", key, val, ok)
 
-	go func() {
-		fmt.Printf("RPC start  -->\n")
+		key = "non-float64"
+		non, ok := ctx.QueryFloat64(key, 0.0)
+		fmt.Printf("QueryFloat64(%s): %f, %v\n", key, non, ok)
+	}
+	{
+		key = "bool"
+		val, ok := ctx.QueryBool(key, false)
+		fmt.Printf("QueryBool(%s): %v, %v\n", key, val, ok)
 
-		time.Sleep(1 * time.Second)
-		infoChan <- &info{name: "name", data: "data"}
+		key = "non-bool"
+		non, ok := ctx.QueryBool(key, false)
+		fmt.Printf("QueryBool(%s): %v, %v\n", key, non, ok)
+	}
+	{
+		key = "string"
+		val, ok := ctx.QueryString(key, "non-existed")
+		fmt.Printf("QueryString(%s): %s, %v\n", key, val, ok)
 
-		fmt.Printf("RPC end   <--\n")
-	}()
+		key = "non-string"
+		non, ok := ctx.QueryString(key, "non-existed")
+		fmt.Printf("QueryString(%s): %s, %v\n", key, non, ok)
+	}
+	{
+		key = "stringSlice"
+		val, ok := ctx.QueryStringSlice(key, []string{"non-existed"})
+		fmt.Printf("QueryStringSlice(%s): %v, %v\n", key, val, ok)
 
-	select {
-	case info := <-infoChan:
-		fmt.Printf("get information:[name:%s, data:%s]\n", info.name, info.data)
-	case <-timeoutCtx.Done():
-		fmt.Printf("timeout and cancel this RPC\n")
+		key = "non-stringSlice"
+		non, ok := ctx.QueryStringSlice(key, []string{"non-existed"})
+		fmt.Printf("QueryStringSlice(%s): %v, %v\n", key, non, ok)
 	}
 
-	fmt.Printf("timedemoHandler() finish and exit\n")
 	return nil
 }
 
@@ -58,29 +87,10 @@ func main() {
 		Handler: core,
 	}
 
-	core.AppendDefaultMiddleware(
-		middleware.Recovery(),
-		middleware.Cost())
-
 	/* register HTTP handler and route */
-	core.GetRegisterFunc("/hello",
-		middleware.Example1(),
-		middleware.Example2(),
-		middleware.WrapNext(nilHandler),
-		nilHandler,
-		middleware.Example3())
+	core.GetRegisterFunc("/query", queryHandler)
 
-	group := core.NewRouteGroup("/group")
-	group.AppendDefaultMiddleware(middleware.Example1())
-	group.GetRegisterFunc("/demo",
-		middleware.Example2(),
-		middleware.WrapNext(nilHandler),
-		nilHandler,
-		middleware.Example3())
-
-	core.DumpRoutes()
-
-	_ = server.ListenAndServe() // 依然借助 http.Server 来启动 http 监听、处理 connect
+	_ = server.ListenAndServe()
 
 	fmt.Println("bye~, exit Marine-Snow now.")
 }

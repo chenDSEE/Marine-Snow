@@ -32,7 +32,7 @@ func NewCore() *Core {
 
 // as a HTTP URL router
 func (core *Core) ServeHTTP(rsp http.ResponseWriter, req *http.Request) {
-	url := req.URL.String()
+	url := req.URL.Path
 	method := strings.ToUpper(req.Method)
 	fEntryList, pattern := core.getHandlerEntryList(method, url)
 	if fEntryList == nil || len(fEntryList) == 0 {

@@ -23,7 +23,7 @@ func newRouteTree(name string) *rTree {
 func (rtree *rTree) addRoute(url string, handlers []handlerFuncEntry) error {
 	/* if uri existed, return error */
 	if n := rtree.root.matchNode(url); n != nil {
-		return errors.New("Route conflict: " + url + " with [" + n.fullUrl + "]")
+		return errors.New("Route conflict: " + url + " with [" + n.pattern + "]")
 	}
 
 	segments := strings.Split(url, "/") // "" as root node
@@ -56,25 +56,26 @@ nextRound:
 		segmentNode.segment = segment
 		if isEnd == true {
 			segmentNode.isEnd = true
-			segmentNode.fullUrl = url
+			segmentNode.pattern = url
 			segmentNode.handlerEntryList = handlers
 		}
 
 		currNode.children = append(currNode.children, segmentNode) // register into parent node
+		segmentNode.parent = currNode                              // record parent node
 		currNode = segmentNode                                     // for next round
 	}
 
 	return nil
 }
 
-type routeEntry struct {
+type routeInfo struct {
 	url         string
 	handlerName string
 }
 
 func (rtree *rTree) printRouteTree() {
 	// perform a DFS
-	entries := travelRouteTable(rtree.root, make([]routeEntry, 0))
+	entries := travelRouteTable(rtree.root, make([]routeInfo, 0))
 
 	fmt.Printf("===== %s tire tree dump =====\n", rtree.name)
 	for i := 0; i < len(entries); i++ {
@@ -82,11 +83,11 @@ func (rtree *rTree) printRouteTree() {
 	}
 }
 
-func travelRouteTable(n *node, entries []routeEntry) []routeEntry {
+func travelRouteTable(n *node, entries []routeInfo) []routeInfo {
 	// perform a DFS search
 	if n.isEnd == true {
-		entry := routeEntry{
-			url:         n.fullUrl,
+		entry := routeInfo{
+			url:         n.pattern,
 			handlerName: n.handlerEntryList[len(n.handlerEntryList)-1].funName,
 		}
 		entries = append(entries, entry)
@@ -105,15 +106,16 @@ func (rtree *rTree) FindHandlerEntryList(url string) ([]handlerFuncEntry, string
 		return nil, ""
 	}
 
-	return matchNode.handlerEntryList, matchNode.fullUrl
+	return matchNode.handlerEntryList, matchNode.pattern
 }
 
 type node struct {
 	segment          string
-	fullUrl          string
+	pattern          string
 	isEnd            bool
 	handlerEntryList []handlerFuncEntry
 	children         []*node
+	parent           *node // parse parameter from down to up, no need to match again
 }
 
 func newNode() *node {
@@ -121,6 +123,7 @@ func newNode() *node {
 		isEnd:    false,
 		segment:  "", // as default value for root node
 		children: []*node{},
+		parent:   nil,
 	}
 }
 
@@ -188,4 +191,25 @@ func (n *node) matchNode(url string) *node {
 	}
 
 	return nil // can not match any node by this url
+}
+
+// n is end node, parse from down to top
+func (n *node) parseUrlParameters(path string) map[string]string {
+	paramTable := map[string]string{}
+
+	segmentList := strings.Split(path, "/")
+	currNode := n
+	for i := len(segmentList) - 1; i >= 0; i-- {
+		if segmentList[i] == "" {
+			break // the first segment is ""
+		}
+
+		if isWildSegment(currNode.segment) {
+			paramTable[currNode.segment[1:]] = segmentList[i]
+		}
+
+		currNode = currNode.parent
+	}
+
+	return paramTable
 }

@@ -59,11 +59,81 @@ func (core *Core) DeleteRegisterFunc(url string, fun ...HandlerFunc) {
 	core.registerHelper("DELETE", url, fun)
 }
 
-func (core *Core) getHandlerEntryList(method, url string) ([]handlerFuncEntry, string) {
+// func (core *Core) getHandlerEntryList(method, url string) ([]handlerFuncEntry, string) {
+// 	router, ok := core.routers[method]
+// 	if !ok {
+// 		return nil, ""
+// 	}
+
+// 	return router.FindHandlerEntryList(url)
+// }
+
+func (core *Core) matchRoute(method, path string) (*routeEntry, bool) {
 	router, ok := core.routers[method]
 	if !ok {
-		return nil, ""
+		return nil, false
 	}
 
-	return router.FindHandlerEntryList(url)
+	matchNode := router.root.matchNode(path)
+	if matchNode == nil {
+		return nil, false
+	}
+
+	entry := &routeEntry{
+		method:     method,
+		path:       path,
+		endNode:    matchNode,
+		paramTable: map[string]string{},
+	}
+
+	return entry, true
+}
+
+// TODO: interface this struct
+// not safe for concurrency
+type routeEntry struct {
+	method     string
+	path       string
+	endNode    *node
+	paramTable map[string]string
+	// router *rTree   no need now
+}
+
+func (entry *routeEntry) getHandlerEntryList() []handlerFuncEntry {
+	if entry.endNode == nil {
+		return nil
+	}
+
+	return entry.endNode.handlerEntryList
+}
+
+func (entry *routeEntry) getParamTable() map[string]string {
+	if len(entry.paramTable) > 0 {
+		// only parse once
+		return entry.paramTable
+	}
+
+	if entry.endNode == nil {
+		return entry.paramTable
+	}
+
+	entry.paramTable = entry.endNode.parseUrlParameters(entry.path)
+
+	return entry.paramTable
+}
+
+func (entry *routeEntry) getPattern() string {
+	if entry.endNode == nil {
+		return ""
+	}
+
+	return entry.endNode.pattern
+}
+
+func (entry *routeEntry) getMethod() string {
+	return entry.method
+}
+
+func (entry *routeEntry) getPath() string {
+	return entry.path
 }

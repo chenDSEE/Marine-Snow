@@ -11,5 +11,14 @@ type IRequest interface {
 	QueryBool(key string, def bool) (bool, bool)
 	QueryString(key string, def string) (string, bool)
 	QueryStringSlice(key string, def []string) ([]string, bool)
-	Query(key string) interface{}
+	Query(key string) (string, bool)
+
+	// parameters in URL
+	ParamInt(key string, def int) (int, bool)
+	ParamInt64(key string, def int64) (int64, bool)
+	ParamFloat32(key string, def float32) (float32, bool)
+	ParamFloat64(key string, def float64) (float64, bool)
+	ParamBool(key string, def bool) (bool, bool)
+	ParamString(key string, def string) (string, bool)
+	Param(key string) (string, bool)
 }

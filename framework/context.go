@@ -20,6 +20,8 @@ type Context struct {
 
 	queryAll   sync.Once
 	queryTable map[string][]string
+
+	paramTable map[string]string
 }
 
 func NewContext(rsp http.ResponseWriter, req *http.Request) *Context {
@@ -30,6 +32,7 @@ func NewContext(rsp http.ResponseWriter, req *http.Request) *Context {
 		hEntryIndex: -1,
 		hEntryList:  nil,
 		queryTable:  map[string][]string{},
+		paramTable:  map[string]string{},
 	}
 }
 
@@ -69,12 +72,16 @@ func (ctx *Context) SetHandlerList(list []handlerFuncEntry) {
 	ctx.hEntryList = list
 }
 
+func (ctx *Context) SetParamTable(table map[string]string) {
+	ctx.paramTable = table
+}
+
 func (ctx *Context) NextHandler() error {
 	ctx.hEntryIndex++
 	if ctx.hEntryIndex < len(ctx.hEntryList) {
 		entry := ctx.hEntryList[ctx.hEntryIndex]
 
-		fmt.Printf("--> [%d/%d] forward to [%s]\n",
+		fmt.Printf("--> [Pipeline-%d/%d] forward to [%s]\n",
 			ctx.hEntryIndex+1, len(ctx.hEntryList), entry.funName)
 
 		if err := entry.fun(ctx); err != nil {
@@ -193,12 +200,104 @@ func (ctx *Context) QueryStringSlice(key string, def []string) ([]string, bool) 
 	return valList, true
 }
 
-func (ctx *Context) Query(key string) interface{} {
+func (ctx *Context) Query(key string) (string, bool) {
 	query := ctx.QueryAll()
 	valList, ok := query[key]
 	if !ok || len(valList) == 0 {
-		return nil
+		return "", false
 	}
 
-	return valList[0]
+	return valList[0], true
+}
+
+func (ctx *Context) ParamInt(key string, def int) (int, bool) {
+	str, ok := ctx.Param(key)
+	if !ok {
+		return def, false
+	}
+
+	val, err := strconv.Atoi(str)
+	if err != nil {
+		return def, false
+	}
+
+	return val, true
+}
+
+func (ctx *Context) ParamInt64(key string, def int64) (int64, bool) {
+	str, ok := ctx.Param(key)
+	if !ok {
+		return def, false
+	}
+
+	val, err := strconv.ParseInt(str, 10, 64)
+	if err != nil {
+		return def, false
+	}
+
+	return val, true
+}
+
+func (ctx *Context) ParamFloat64(key string, def float64) (float64, bool) {
+	str, ok := ctx.Param(key)
+	if !ok {
+		return def, false
+	}
+
+	val, err := strconv.ParseFloat(str, 64)
+	if err != nil {
+		return def, false
+	}
+
+	return val, true
+}
+
+func (ctx *Context) ParamFloat32(key string, def float32) (float32, bool) {
+	str, ok := ctx.Param(key)
+	if !ok {
+		return def, false
+	}
+
+	val, err := strconv.ParseFloat(str, 32)
+	if err != nil {
+		return def, false
+	}
+
+	return float32(val), true
+}
+
+func (ctx *Context) ParamBool(key string, def bool) (bool, bool) {
+	str, ok := ctx.Param(key)
+	if !ok {
+		return def, false
+	}
+
+	val, err := strconv.ParseBool(str)
+	if err != nil {
+		return def, false
+	}
+
+	return val, true
+}
+
+func (ctx *Context) ParamString(key string, def string) (string, bool) {
+	str, ok := ctx.Param(key)
+	if !ok {
+		return def, false
+	}
+
+	return str, true
+}
+
+func (ctx *Context) Param(key string) (string, bool) {
+	if len(ctx.paramTable) == 0 {
+		return "", false
+	}
+
+	val, ok := ctx.paramTable[key]
+	if !ok {
+		return "", false
+	}
+
+	return val, true
 }

@@ -2,10 +2,60 @@ package main
 
 import (
 	"MarineSnow/framework"
+	"encoding/xml"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
 )
+
+// curl http://127.0.0.1:80/basic-info
+// curl http://127.0.0.1:80/basic-info -H 'X-Real-Ip: 1.1.1.1'
+// curl http://127.0.0.1:80/basic-info -H 'X-Forwarded-For: 2.2.2.2'
+func basicInfoHandler(ctx *framework.Context) error {
+	fmt.Printf("[%s --> %s]: %s %s\n", ctx.ClientIp(), ctx.Host(), ctx.Method(), ctx.URI())
+	return nil
+}
+
+// curl http://127.0.0.1:80/header
+func headerHandler(ctx *framework.Context) error {
+	key := "User-Agent"
+	agent, ok := ctx.Header(key)
+	fmt.Printf("Header(%s): %s, %v\n", key, agent, ok)
+
+	key = "X-Forwarded-For" // non existed
+	non, ok := ctx.Header(key)
+	fmt.Printf("Header(%s): %s, %v\n", key, non, ok)
+
+	// dump all Header
+	fmt.Println("=== dump all Header ===")
+	headers := ctx.Headers()
+	for header, val := range headers {
+		fmt.Printf("%s: %s\n", header, val)
+	}
+
+	return nil
+}
+
+// curl http://127.0.0.1:80/cookie --cookie 'key-1=value-1' --cookie 'key-2=value-2' --cookie 'key-1=value-3'
+func cookieHandler(ctx *framework.Context) error {
+	key := "key-2"
+	cookie, ok := ctx.Cookie(key)
+	fmt.Printf("Cookie(%s): %s, %v\n", key, cookie, ok)
+
+	key = "non-key" // non existed
+	cookie, ok = ctx.Cookie(key)
+	fmt.Printf("Cookie(%s): %s, %v\n", key, cookie, ok)
+
+	// dump all cookies
+	fmt.Println("=== dump all cookies ===")
+	cookies := ctx.Cookies()
+	for key, val := range cookies {
+		fmt.Printf("%s(num:%d): %v\n", key, len(val), val)
+	}
+
+	return nil
+}
 
 // curl "http://127.0.0.1:80/query?int=123&int64=321&float32=1.23&float64=3.21&bool=True&string=demo-string&stringSlice=demo-stringSlice-1&stringSlice=demo-stringSlice-2"
 func queryHandler(ctx *framework.Context) error {
@@ -319,6 +369,95 @@ func fileHandler(ctx *framework.Context) error {
 	return nil
 }
 
+// Issue by:
+// curl -X POST \
+// http://127.0.0.1:80/json \
+// -H 'content-type: application/json' \
+// -d '{"name":"name-string","num":123,"now":"2022-07-09T23:00:00Z","data":["string-1","string-2"]}'
+//
+// In http request:
+// 	POST /json HTTP/1.1
+//	Host: 127.0.0.1
+//	User-Agent: curl/7.83.1
+//	Accept: */*
+//	content-type: application/json
+//	Content-Length: 92
+//
+//	{"name":"name-string","num":123,"now":"2022-07-09T23:00:00Z","data":["string-1","string-2"]}
+func jsonHandler(ctx *framework.Context) error {
+	type jsonObj struct {
+		Name string    `json:"name"`
+		Num  int       `json:"num"`
+		Data []string  `json:"data"`
+		Now  time.Time `json:"now"`
+	}
+
+	var obj jsonObj
+	err := ctx.BindJSON(&obj)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("JSON data: obj%v\n", obj)
+	fmt.Printf("raw JSON data: %s\n", ctx.Request().Body)
+	return nil
+}
+
+// Issue by:
+//  curl -X POST \
+//  http://127.0.0.1:80/xml \
+//  -H 'content-type: application/xml' \
+//  -d '<?xml version="1.0" encoding="UTF-8"?><entry><name>name-string</name><num>123</num><now>2022-07-09T23:00:00Z</now><data>string-1</data><data>string-2</data></entry>'
+//
+// In http request:
+//  POST /xml HTTP/1.1
+//  Host: 127.0.0.1
+//  User-Agent: curl/7.83.1
+//  Accept: */*
+//  content-type: application/xml
+//  Content-Length: 164
+//
+//  <?xml version="1.0" encoding="UTF-8"?><entry><name>name-string</name><num>123</num><now>2022-07-09T23:00:00Z</now><data>string-1</data><data>string-2</data></entry>
+func xmlHandler(ctx *framework.Context) error {
+	type xmlObj struct {
+		XMLName xml.Name  `xml:"entry"`
+		Name    string    `xml:"name"`
+		Num     int       `xml:"num"`
+		Data    []string  `xml:"data"`
+		Now     time.Time `xml:"now"`
+	}
+
+	var obj xmlObj
+	err := ctx.BindXML(&obj)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("XML data: obj%v\n", obj)
+	fmt.Printf("raw XML data: %s\n", ctx.Request().Body)
+	return nil
+}
+
+// curl -X POST http://127.0.0.1:80/raw -d 'raw-data-string'
+func rawBodyHandler(ctx *framework.Context) error {
+	data, err := ctx.RawBody()
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("raw data: obj%v\n", data)
+	fmt.Printf("raw data: %s\n", ctx.Request().Body)
+
+	//data, err = ctx.RawBody()
+	//if err != nil {
+	//	return err
+	//}
+	//
+	//fmt.Printf("raw data: obj%v\n", data)
+	//fmt.Printf("raw data: %s\n", ctx.Request().Body)
+	return nil
+}
+
 const SERVER_ADDR = "127.0.0.1:80"
 
 func main() {
@@ -330,10 +469,17 @@ func main() {
 	}
 
 	/* register HTTP handler and route */
+	core.GetRegisterFunc("/basic-info", basicInfoHandler)
+	core.GetRegisterFunc("/header", headerHandler)
+	core.GetRegisterFunc("/cookie", cookieHandler)
+
 	core.GetRegisterFunc("/query", queryHandler)
 	core.GetRegisterFunc("/int/:int/:int64/float/:float32/:float64/bool/:bool/string/:string/end", paramHandler)
 	core.PostRegisterFunc("/form-data", formHandler)
 	core.PostRegisterFunc("/form-file", fileHandler)
+	core.PostRegisterFunc("/json", jsonHandler)
+	core.PostRegisterFunc("/xml", xmlHandler)
+	core.PostRegisterFunc("/raw", rawBodyHandler)
 
 	core.DumpRoutes()
 

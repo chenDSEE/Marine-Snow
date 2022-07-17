@@ -3,6 +3,7 @@ package framework
 import (
 	"context"
 	"fmt"
+	"mime/multipart"
 	"net/http"
 	"strconv"
 	"sync"
@@ -18,9 +19,11 @@ type Context struct {
 	hEntryIndex int
 	hEntryList  []handlerFuncEntry
 
+	// query data in URL
 	queryAll   sync.Once
 	queryTable map[string][]string
 
+	// param data in URL
 	paramTable map[string]string
 }
 
@@ -200,23 +203,23 @@ func (ctx *Context) QueryStringSlice(key string, def []string) ([]string, bool) 
 	return valList, true
 }
 
-func (ctx *Context) Query(key string) (string, bool) {
+func (ctx *Context) Query(key string) interface{} {
 	query := ctx.QueryAll()
 	valList, ok := query[key]
-	if !ok || len(valList) == 0 {
-		return "", false
+	if !ok {
+		return nil
 	}
 
-	return valList[0], true
+	return valList
 }
 
 func (ctx *Context) ParamInt(key string, def int) (int, bool) {
-	str, ok := ctx.Param(key)
-	if !ok {
+	str := ctx.Param(key)
+	if str == nil {
 		return def, false
 	}
 
-	val, err := strconv.Atoi(str)
+	val, err := strconv.Atoi(str.(string))
 	if err != nil {
 		return def, false
 	}
@@ -225,12 +228,12 @@ func (ctx *Context) ParamInt(key string, def int) (int, bool) {
 }
 
 func (ctx *Context) ParamInt64(key string, def int64) (int64, bool) {
-	str, ok := ctx.Param(key)
-	if !ok {
+	str := ctx.Param(key)
+	if str == nil {
 		return def, false
 	}
 
-	val, err := strconv.ParseInt(str, 10, 64)
+	val, err := strconv.ParseInt(str.(string), 10, 64)
 	if err != nil {
 		return def, false
 	}
@@ -239,12 +242,12 @@ func (ctx *Context) ParamInt64(key string, def int64) (int64, bool) {
 }
 
 func (ctx *Context) ParamFloat64(key string, def float64) (float64, bool) {
-	str, ok := ctx.Param(key)
-	if !ok {
+	str := ctx.Param(key)
+	if str == nil {
 		return def, false
 	}
 
-	val, err := strconv.ParseFloat(str, 64)
+	val, err := strconv.ParseFloat(str.(string), 64)
 	if err != nil {
 		return def, false
 	}
@@ -253,12 +256,12 @@ func (ctx *Context) ParamFloat64(key string, def float64) (float64, bool) {
 }
 
 func (ctx *Context) ParamFloat32(key string, def float32) (float32, bool) {
-	str, ok := ctx.Param(key)
-	if !ok {
+	str := ctx.Param(key)
+	if str == nil {
 		return def, false
 	}
 
-	val, err := strconv.ParseFloat(str, 32)
+	val, err := strconv.ParseFloat(str.(string), 32)
 	if err != nil {
 		return def, false
 	}
@@ -267,12 +270,12 @@ func (ctx *Context) ParamFloat32(key string, def float32) (float32, bool) {
 }
 
 func (ctx *Context) ParamBool(key string, def bool) (bool, bool) {
-	str, ok := ctx.Param(key)
-	if !ok {
+	str := ctx.Param(key)
+	if str == nil {
 		return def, false
 	}
 
-	val, err := strconv.ParseBool(str)
+	val, err := strconv.ParseBool(str.(string))
 	if err != nil {
 		return def, false
 	}
@@ -281,23 +284,157 @@ func (ctx *Context) ParamBool(key string, def bool) (bool, bool) {
 }
 
 func (ctx *Context) ParamString(key string, def string) (string, bool) {
-	str, ok := ctx.Param(key)
-	if !ok {
+	str := ctx.Param(key)
+	if str == nil {
 		return def, false
 	}
 
-	return str, true
+	return str.(string), true
 }
 
-func (ctx *Context) Param(key string) (string, bool) {
+func (ctx *Context) Param(key string) interface{} {
 	if len(ctx.paramTable) == 0 {
-		return "", false
+		return nil
 	}
 
 	val, ok := ctx.paramTable[key]
 	if !ok {
-		return "", false
+		return nil
+	}
+
+	return val
+}
+
+func (ctx *Context) FormAll(key string) map[string][]string {
+	if ctx.req != nil {
+		ctx.req.ParseForm()     // only parse once
+		return ctx.req.PostForm // form in http request body
+	}
+
+	return map[string][]string{}
+}
+
+func (ctx *Context) FormInt(key string, def int) (int, bool) {
+	form := ctx.FormAll(key)
+	valList, ok := form[key]
+	if !ok || len(valList) == 0 {
+		return def, false
+	}
+
+	val, err := strconv.Atoi(valList[0])
+	if err != nil {
+		return def, false
 	}
 
 	return val, true
+}
+
+func (ctx *Context) FormInt64(key string, def int64) (int64, bool) {
+	form := ctx.FormAll(key)
+	valList, ok := form[key]
+	if !ok || len(valList) == 0 {
+		return def, false
+	}
+
+	val, err := strconv.ParseInt(valList[0], 10, 64)
+	if err != nil {
+		return def, false
+	}
+
+	return val, true
+}
+
+func (ctx *Context) FormFloat64(key string, def float64) (float64, bool) {
+	form := ctx.FormAll(key)
+	valList, ok := form[key]
+	if !ok || len(valList) == 0 {
+		return def, false
+	}
+
+	val, err := strconv.ParseFloat(valList[0], 64)
+	if err != nil {
+		return def, false
+	}
+
+	return val, true
+}
+
+func (ctx *Context) FormFloat32(key string, def float32) (float32, bool) {
+	form := ctx.FormAll(key)
+	valList, ok := form[key]
+	if !ok || len(valList) == 0 {
+		return def, false
+	}
+
+	val, err := strconv.ParseFloat(valList[0], 32)
+	if err != nil {
+		return def, false
+	}
+
+	return float32(val), true
+}
+
+func (ctx *Context) FormBool(key string, def bool) (bool, bool) {
+	form := ctx.FormAll(key)
+	valList, ok := form[key]
+	if !ok || len(valList) == 0 {
+		return def, false
+	}
+
+	val, err := strconv.ParseBool(valList[0])
+	if err != nil {
+		return def, false
+	}
+
+	return val, true
+}
+
+func (ctx *Context) FormString(key string, def string) (string, bool) {
+	form := ctx.FormAll(key)
+	valList, ok := form[key]
+	if !ok || len(valList) == 0 {
+		return def, false
+	}
+
+	return valList[0], true
+}
+
+func (ctx *Context) FormStringSlice(key string, def []string) ([]string, bool) {
+	form := ctx.FormAll(key)
+	valList, ok := form[key]
+	if !ok || len(valList) == 0 {
+		return def, false
+	}
+
+	return valList, true
+}
+
+// TODO: add a function to control max memory for form-base data
+// TODO: add a api to control where the file be store
+const defaultMultipartMemory = 32 << 20 // 32 MB
+func (ctx *Context) FormFile(key string) (*multipart.FileHeader, error) {
+	if ctx.req.MultipartForm == nil {
+		// call ParseMultipartForm() to control the maxMemory
+		if err := ctx.req.ParseMultipartForm(defaultMultipartMemory); err != nil {
+			return nil, err
+		}
+	}
+
+	file, fileHeader, err := ctx.req.FormFile(key)
+	if err != nil {
+		return nil, err
+	}
+
+	_ = file.Close() // only return FileHeader, but not File
+	return fileHeader, err
+}
+
+func (ctx *Context) Form(key string) interface{} {
+	form := ctx.FormAll(key)
+	valList, ok := form[key]
+	if !ok {
+		return nil
+	}
+
+	return valList
 }

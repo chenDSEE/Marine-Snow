@@ -3,6 +3,21 @@ package framework
 import "mime/multipart"
 
 type IRequest interface {
+	/* basic information */
+	URI() string
+	Method() string
+	Host() string
+	ClientIp() string
+
+	/* HTTP Header */
+	Headers() map[string][]string
+	Header(key string) (string, bool)
+
+	// cookie
+	Cookies() map[string][]string
+	Cookie(key string) (string, bool)
+
+	/* HTTP Body */
 	// Example URL: http://localhost/demo?id=123&name=name-string
 	// id and name is key; 123 and name-string is return value
 	// default must be set
@@ -34,4 +49,9 @@ type IRequest interface {
 	FormStringSlice(key string, def []string) ([]string, bool)
 	FormFile(key string) (*multipart.FileHeader, error)
 	Form(key string) interface{}
+
+	// format request body
+	BindJSON(obj interface{}) error // JSON body
+	BindXML(obj interface{}) error  // XML body
+	RawBody() ([]byte, error)       // other format
 }

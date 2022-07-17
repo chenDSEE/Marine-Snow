@@ -1,8 +1,13 @@
 package framework
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
+	"encoding/xml"
+	"errors"
 	"fmt"
+	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	"strconv"
@@ -19,6 +24,10 @@ type Context struct {
 	hEntryIndex int
 	hEntryList  []handlerFuncEntry
 
+	// cookie
+	cookieParse sync.Once
+	cookieTable map[string][]string
+
 	// query data in URL
 	queryAll   sync.Once
 	queryTable map[string][]string
@@ -34,6 +43,7 @@ func NewContext(rsp http.ResponseWriter, req *http.Request) *Context {
 		ctx:         req.Context(),
 		hEntryIndex: -1,
 		hEntryList:  nil,
+		cookieTable: map[string][]string{},
 		queryTable:  map[string][]string{},
 		paramTable:  map[string]string{},
 	}
@@ -97,10 +107,83 @@ func (ctx *Context) NextHandler() error {
 
 var _ IRequest = &Context{}
 
+func (ctx *Context) URI() string {
+	return ctx.req.RequestURI
+}
+
+func (ctx *Context) Method() string {
+	return ctx.req.Method
+}
+
+func (ctx *Context) Host() string {
+	host := ctx.req.Host
+	if host == "" {
+		// GET /pub/WWW/TheProject.html HTTP/1.1
+		// Host: www.example.org:8080
+		// ctx.req.URL.Host = ""
+		host = ctx.req.URL.Host
+	}
+	if host == "" {
+		// Host Header will be removed by net/http
+		host = ctx.req.Header.Get("Host")
+	}
+
+	return host
+}
+
+func (ctx *Context) ClientIp() string {
+	addr := ctx.req.Header.Get("X-Real-Ip")
+	if addr == "" {
+		addr = ctx.req.Header.Get("X-Forwarded-For")
+	}
+	if addr == "" {
+		addr = ctx.req.RemoteAddr
+	}
+
+	return addr
+}
+
+func (ctx *Context) Headers() map[string][]string {
+	return ctx.req.Header
+}
+
+func (ctx *Context) Header(key string) (string, bool) {
+	valList := ctx.req.Header.Values(key)
+	if len(valList) == 0 {
+		return "", false
+	}
+
+	return valList[0], true
+}
+
+func (ctx *Context) Cookies() map[string][]string {
+	ctx.cookieParse.Do(func() {
+		if ctx.req != nil {
+			// every call for ctx.Cookies() will parse cookies and create a new map only once
+			cookies := ctx.req.Cookies()
+			for _, cookie := range cookies {
+				ctx.cookieTable[cookie.Name] = append(ctx.cookieTable[cookie.Name], cookie.Value)
+			}
+		}
+	})
+
+	return ctx.cookieTable
+}
+
+func (ctx *Context) Cookie(key string) (string, bool) {
+	cookie := ctx.Cookies()
+	valList, ok := cookie[key]
+	if !ok || len(valList) == 0 {
+		return "", false
+	}
+
+	return valList[0], true
+}
+
 func (ctx *Context) QueryAll() map[string][]string {
 	ctx.queryAll.Do(func() {
 		if ctx.req != nil {
-			// every call for ctx.req.URL.Query() will parse URL and create a new map
+			// every call for ctx.req.URL.Query() will parse URL and create a new map only once
 			ctx.queryTable = ctx.req.URL.Query()
 		}
 	})
@@ -437,4 +520,82 @@ func (ctx *Context) Form(key string) interface{} {
 	}
 
 	return valList
+}
+
+// BindJSON would parse request body by JSON.
+// If obj is nil, BindJSON() not unmarshal, and only store raw JSON into ctx.req.Body
+func (ctx *Context) BindJSON(obj interface{}) error {
+	if ctx.req == nil {
+		return errors.New("Context's request is empty")
+	}
+
+	// get all raw data from ctx.req.Body, may IO block
+	body, err := ioutil.ReadAll(ctx.req.Body)
+	if err != nil {
+		// LimitReader wrapped in net/http may return error
+		return err
+	}
+
+	// store the raw JSON data back to ctx.req.Body
+	// after this method function, we can access raw http request JSON body via ctx.Request().Body
+	ctx.req.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+
+	if obj == nil {
+		// not unmarshal JSON into a struct object
+		return nil
+	}
+
+	err = json.Unmarshal(body, obj) // unmarshal body into obj interface
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// BindXML would parse request body by XML.
+// If obj is nil, BindXML() not unmarshal, and only store raw XML into ctx.req.Body
+func (ctx *Context) BindXML(obj interface{}) error {
+	if ctx.req == nil {
+		return errors.New("Context's request is empty")
+	}
+
+	// get all raw data from ctx.req.Body, may IO block
+	body, err := ioutil.ReadAll(ctx.req.Body)
+	if err != nil {
+		// LimitReader wrapped in net/http may return error
+		return err
+	}
+
+	// store the raw XML data back to ctx.req.Body
+	// after this method function, we can access raw http request XML body via ctx.Request().Body
+	ctx.req.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+
+	if obj == nil {
+		// not unmarshal XML into a struct object
+		fmt.Println("not to parse into boj")
+		return nil
+	}
+
+	err = xml.Unmarshal(body, obj) // unmarshal body into obj interface
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// TODO: now, call RawBody() will perform a deep copy. return same raw data when second call, avoid deep copy
+func (ctx *Context) RawBody() ([]byte, error) {
+	if ctx.req == nil {
+		return nil, errors.New("Context's request is empty")
+	}
+
+	body, err := ioutil.ReadAll(ctx.req.Body)
+	if err != nil {
+		return nil, err
+	}
+	ctx.req.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+
+	return body, nil
 }

@@ -50,7 +50,6 @@ func (core *Core) ServeHTTP(rsp http.ResponseWriter, req *http.Request) {
 	ctx.SetHandlerList(fEntryList)
 	ctx.SetParamTable(route.getParamTable())
 
-	fmt.Println("param table:", ctx.paramTable)
 	fmt.Printf("==> request[%s:%s], match [%s], start pipeline handle:\n",
 		method, path, route.getPattern())
 

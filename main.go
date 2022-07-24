@@ -458,6 +458,100 @@ func rawBodyHandler(ctx *framework.Context) error {
 	return nil
 }
 
+/* response demo */
+// curl -i http://127.0.0.1/basic-response
+func basicResponseHandler(ctx *framework.Context) error {
+	ctx.AddHeader("Allow", http.MethodPost)
+	ctx.AddHeader("date", "Sun, 24 Jul 2022 05:51:10 GMT")
+	ctx.DelHeader("date")
+
+	ctx.SetCookie("cookie-key", "cookie-value", 10, "", "", false, true)
+
+	ctx.SetStatus(http.StatusAccepted)
+	return nil
+}
+
+// curl -i http://127.0.0.1/text/no-status
+func textBodyNoStatusHandler(ctx *framework.Context) error {
+	ctx.Text("Text data:[%s]\n", "demo-string1")
+	return nil
+}
+
+// curl -i http://127.0.0.1/text/with-status
+func textBodyWithStatusHandler(ctx *framework.Context) error {
+	ctx.SetStatus(http.StatusMultiStatus) // make on effect to Header "Content-Type"
+	ctx.Text("Text data[%d]:[%s]\n", http.StatusMultiStatus, "demo-string1")
+
+	return nil
+}
+
+// curl -i http://127.0.0.1/raw-data
+func rawDataHandler(ctx *framework.Context) error {
+	// any Context-Type as you want
+	//ctx.AddHeader("Content-Type", "application/text")
+	//ctx.AddHeader("Content-Type", "application/json")
+	//ctx.AddHeader("Content-Type", "application/xml")
+	//ctx.AddHeader("Content-Type", "text/plain")
+	ctx.AddHeader("Content-Type", "application/html")
+
+	ctx.RawData([]byte("byte-demo-for-raw-data\n"))
+	return nil
+}
+
+// curl -i http://127.0.0.1/json-data
+func jsonDataHandler(ctx *framework.Context) error {
+	type jsonObj struct {
+		Name string    `json:"name"`
+		Num  int       `json:"num"`
+		Data []string  `json:"data"`
+		Now  time.Time `json:"now"`
+	}
+
+	ctx.JSON(&jsonObj{
+		Name: "name-string",
+		Num:  20,
+		Data: []string{"string-1", "string2"},
+		Now:  time.Now(),
+	})
+	return nil
+}
+
+// curl -i http://127.0.0.1/xml-data
+func xmlDataHandler(ctx *framework.Context) error {
+	type xmlObj struct {
+		XMLName xml.Name  `xml:"entry"`
+		Name    string    `xml:"name"`
+		Num     int       `xml:"num"`
+		Data    []string  `xml:"data"`
+		Now     time.Time `xml:"now"`
+	}
+
+	ctx.XML(&xmlObj{
+		Name: "name-string",
+		Num:  30,
+		Data: []string{"string-1", "string-2"},
+		Now:  time.Now(),
+	})
+	return nil
+}
+
+// curl -i http://127.0.0.1/redirect
+func redirectHandler(ctx *framework.Context) error {
+	ctx.Redirect("/www.redirect.com/new/path")
+	return nil
+}
+
+// curl -i http://127.0.0.1/html/files
+func htmlFilesHandler(ctx *framework.Context) error {
+	type HtmlObj struct {
+		Name string
+	}
+
+	e := HtmlObj{Name: "Marine Snow"}
+	ctx.HtmlFiles(e, "example.html")
+	return nil
+}
+
 const SERVER_ADDR = "127.0.0.1:80"
 
 func main() {
@@ -469,10 +563,10 @@ func main() {
 	}
 
 	/* register HTTP handler and route */
+	// request demo
 	core.GetRegisterFunc("/basic-info", basicInfoHandler)
 	core.GetRegisterFunc("/header", headerHandler)
 	core.GetRegisterFunc("/cookie", cookieHandler)
-
 	core.GetRegisterFunc("/query", queryHandler)
 	core.GetRegisterFunc("/int/:int/:int64/float/:float32/:float64/bool/:bool/string/:string/end", paramHandler)
 	core.PostRegisterFunc("/form-data", formHandler)
@@ -480,6 +574,17 @@ func main() {
 	core.PostRegisterFunc("/json", jsonHandler)
 	core.PostRegisterFunc("/xml", xmlHandler)
 	core.PostRegisterFunc("/raw", rawBodyHandler)
+
+	// response demo
+	core.GetRegisterFunc("/basic-response", basicResponseHandler)
+	core.GetRegisterFunc("/text/no-status", textBodyNoStatusHandler)
+	core.GetRegisterFunc("/text/with-status", textBodyWithStatusHandler)
+	core.GetRegisterFunc("/json-data", jsonDataHandler)
+	core.GetRegisterFunc("/xml-data", xmlDataHandler)
+	core.GetRegisterFunc("/redirect", redirectHandler)
+	core.GetRegisterFunc("/html/files", htmlFilesHandler)
+
+	core.GetRegisterFunc("/raw-data", rawDataHandler)
 
 	core.DumpRoutes()
 

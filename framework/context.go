@@ -7,16 +7,18 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
+	"html/template"
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
+	"net/url"
 	"strconv"
 	"sync"
 	"time"
 )
 
 type Context struct {
-	rsp http.ResponseWriter
+	/* request part */
 	req *http.Request
 
 	ctx context.Context
@@ -34,11 +36,19 @@ type Context struct {
 
 	// param data in URL
 	paramTable map[string]string
+
+	/* response part */
+	rsp http.ResponseWriter
+
+	// only wrote status when write body
+	// without body, and SetStatus(), will write 200 by default
+	statusCode  int
+	wroteStatus bool
 }
 
 func NewContext(rsp http.ResponseWriter, req *http.Request) *Context {
 	return &Context{
-		rsp:         rsp,
+		/* request part */
 		req:         req,
 		ctx:         req.Context(),
 		hEntryIndex: -1,
@@ -46,6 +56,10 @@ func NewContext(rsp http.ResponseWriter, req *http.Request) *Context {
 		cookieTable: map[string][]string{},
 		queryTable:  map[string][]string{},
 		paramTable:  map[string]string{},
+
+		/* response part */
+		rsp:        rsp,
+		statusCode: http.StatusOK, // default
 	}
 }
 
@@ -69,6 +83,7 @@ func (ctx *Context) Value(key interface{}) interface{} {
 
 // method to access internal variable.
 // TODO: wrap those method better
+// TODO: remove below method
 func (ctx *Context) BaseContext() context.Context {
 	return ctx.req.Context()
 }
@@ -598,4 +613,124 @@ func (ctx *Context) RawBody() ([]byte, error) {
 	ctx.req.Body = ioutil.NopCloser(bytes.NewBuffer(body))
 
 	return body, nil
+}
+
+/* Context impl IResponse */
+var _ IResponse = &Context{}
+
+// append Header
+func (ctx *Context) AddHeader(key string, val string) IResponse {
+	ctx.rsp.Header().Add(key, val)
+	return ctx
+}
+
+// delete Header
+func (ctx *Context) DelHeader(key string) IResponse {
+	ctx.rsp.Header().Del(key)
+	return ctx
+}
+
+// TODO: ctx.SetCookie("key", "val").MaxAge(10).Domain("xxxx") will be better
+// TODO: add a simple method may be better, below method has too much param has to provide
+func (ctx *Context) SetCookie(key string, val string, maxAge int, path string, domain string, secure bool, httpOnly bool) IResponse {
+	if path == "" {
+		path = "/"
+	}
+
+	http.SetCookie(ctx.rsp, &http.Cookie{
+		Name:     key,
+		Value:    url.QueryEscape(val),
+		MaxAge:   maxAge,
+		Path:     path,
+		Domain:   domain,
+		SameSite: 1,
+		Secure:   secure,
+		HttpOnly: httpOnly,
+	})
+
+	return ctx
+}
+
+// avoid below bug:
+// 1. call SetStatus()
+// 2. call Text(), but the Content-Type can not set to ctx.rsp.cw.header
+// only call writeStatus() when fill body, or end of all handler function
+func writeStatus(ctx *Context, statusCode int) {
+	ctx.rsp.WriteHeader(statusCode)
+	ctx.wroteStatus = true
+}
+
+func (ctx *Context) SetStatus(statusCode int) IResponse {
+	ctx.statusCode = statusCode
+	return ctx
+}
+
+func (ctx *Context) SetStatusOK() IResponse {
+	ctx.statusCode = http.StatusOK
+	return ctx
+}
+
+func (ctx *Context) Redirect(url string) IResponse {
+	ctx.SetStatus(http.StatusMovedPermanently)
+	ctx.wroteStatus = true
+	http.Redirect(ctx.rsp, ctx.req, url, ctx.statusCode)
+	return ctx
+}
+
+func (ctx *Context) Text(format string, values ...interface{}) IResponse {
+	// set Header and write status code
+	ctx.AddHeader("Content-Type", "application/text")
+	writeStatus(ctx, ctx.statusCode)
+
+	ctx.rsp.Write([]byte(fmt.Sprintf(format, values...))) // TODO: handle error
+	return ctx
+}
+
+func (ctx *Context) JSON(obj interface{}) IResponse {
+	data, err := json.Marshal(obj)
+	if err != nil {
+		ctx.SetStatus(http.StatusInternalServerError)
+		writeStatus(ctx, ctx.statusCode)
+		return ctx
+	}
+
+	ctx.AddHeader("Content-Type", "application/json")
+	writeStatus(ctx, ctx.statusCode)
+
+	ctx.rsp.Write(data)
+	return ctx
+}
+
+func (ctx *Context) XML(obj interface{}) IResponse {
+	data, err := xml.Marshal(obj)
+	if err != nil {
+		ctx.SetStatus(http.StatusInternalServerError)
+		writeStatus(ctx, ctx.statusCode)
+		return ctx
+	}
+
+	ctx.AddHeader("Content-Type", "application/xml")
+	writeStatus(ctx, ctx.statusCode)
+
+	ctx.rsp.Write(data)
+	return ctx
+}
+
+func (ctx *Context) HtmlFiles(obj interface{}, file ...string) IResponse {
+	tmpl := template.Must(template.ParseFiles(file...))
+	ctx.AddHeader("Content-Type", "application/html")
+	if err := tmpl.Execute(ctx.rsp, obj); err != nil {
+		ctx.DelHeader("Content-Type")
+		return ctx
+	}
+
+	return ctx
+}
+
+func (ctx *Context) RawData(data []byte) IResponse {
+	// write status code
+	writeStatus(ctx, ctx.statusCode)
+
+	ctx.rsp.Write(data) // FIXME: handle error return
+	return ctx
 }

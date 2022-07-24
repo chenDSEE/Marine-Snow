@@ -57,6 +57,13 @@ func (core *Core) ServeHTTP(rsp http.ResponseWriter, req *http.Request) {
 		fmt.Printf("Catch an error: %s\n", err.Error())
 		return
 	}
+
+	// write ctx.statusCode to ctx.rsp.WriteHeader() if not called before
+	if ctx.wroteStatus == false {
+		writeStatus(ctx, ctx.statusCode)
+	}
+
+	// flush response will be handled by net/http packet
 }
 
 func (core *Core) NewRouteGroup(prefix string) RouteGroup {

@@ -719,8 +719,49 @@ func (ctx *Context) XML(obj interface{}) IResponse {
 func (ctx *Context) HtmlFiles(obj interface{}, file ...string) IResponse {
 	tmpl := template.Must(template.ParseFiles(file...))
 	ctx.AddHeader("Content-Type", "application/html")
+	writeStatus(ctx, ctx.statusCode)
+
 	if err := tmpl.Execute(ctx.rsp, obj); err != nil {
 		ctx.DelHeader("Content-Type")
+		return ctx
+	}
+
+	return ctx
+}
+
+// TODO: need more investigation
+// JSONP request like: https://127.0.0.1:80/jsonp?callbackKey=callbackFunction
+func (ctx *Context) Jsonp(callbackKey string, obj interface{}) IResponse {
+	// get callback name from URL query
+	callbackName, _ := ctx.QueryString(callbackKey, "callback")
+	ctx.AddHeader("Content-Type", "application/javascript")
+	writeStatus(ctx, ctx.statusCode)
+
+	// avoid XSS for web
+	callback := template.JSEscapeString(callbackName)
+
+	// format: callback_name(JSON-data)
+	_, err := ctx.rsp.Write([]byte(callback))
+	if err != nil {
+		return ctx
+	}
+
+	_, err = ctx.rsp.Write([]byte("("))
+	if err != nil {
+		return ctx
+	}
+
+	ret, err := json.Marshal(obj)
+	if err != nil {
+		return ctx
+	}
+	_, err = ctx.rsp.Write(ret)
+	if err != nil {
+		return ctx
+	}
+
+	_, err = ctx.rsp.Write([]byte(")"))
+	if err != nil {
 		return ctx
 	}
 

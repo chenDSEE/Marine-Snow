@@ -16,6 +16,6 @@ type IResponse interface {
 	JSON(obj interface{}) IResponse
 	XML(obj interface{}) IResponse
 	HtmlFiles(obj interface{}, file ...string) IResponse
-	//Jsonp(obj interface{}) IResponse
+	Jsonp(callbackKey string, obj interface{}) IResponse
 	RawData(data []byte) IResponse // not to set Content-Type
 }

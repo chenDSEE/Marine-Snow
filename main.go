@@ -552,6 +552,24 @@ func htmlFilesHandler(ctx *framework.Context) error {
 	return nil
 }
 
+// curl -i https://127.0.0.1:80/jsonp?callbackKey=callbackFunction
+func jsonpHandler(ctx *framework.Context) error {
+	type jsonObj struct {
+		Name string    `json:"name"`
+		Num  int       `json:"num"`
+		Data []string  `json:"data"`
+		Now  time.Time `json:"now"`
+	}
+
+	ctx.Jsonp("callbackKey", &jsonObj{
+		Name: "name-string",
+		Num:  20,
+		Data: []string{"string-1", "string2"},
+		Now:  time.Now(),
+	})
+	return nil
+}
+
 const SERVER_ADDR = "127.0.0.1:80"
 
 func main() {
@@ -583,7 +601,7 @@ func main() {
 	core.GetRegisterFunc("/xml-data", xmlDataHandler)
 	core.GetRegisterFunc("/redirect", redirectHandler)
 	core.GetRegisterFunc("/html/files", htmlFilesHandler)
-
+	core.GetRegisterFunc("/jsonp", jsonpHandler)
 	core.GetRegisterFunc("/raw-data", rawDataHandler)
 
 	core.DumpRoutes()

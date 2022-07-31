@@ -1,7 +1,8 @@
 # TODO: update doc for request, response
 
 # Marine-Snow
-A web framework
+A web framework, based on gin.
+If you want the stand alone version, see [here](https://github.com/chenDSEE/Marine-Snow/tree/main)
 
 
 

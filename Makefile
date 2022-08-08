@@ -16,12 +16,12 @@ BINARY_NAME = server
 debug:
 # go build -gcflags="-N -l" $(TARGET_PACKAGE)
 	@echo -e "\033[1;36m====== make debug ======\033[0m"
-	go build -gcflags="all=-N -l" -o ${BINARY_NAME} .
+	go build -v -gcflags="all=-N -l" -o ${BINARY_NAME} .
 
 build:
 # go build $(TARGET_PACKAGE)
 	@echo -e "\033[1;36m====== make all ======\033[0m"
-	go build -o ${BINARY_NAME} .
+	go build -v -o ${BINARY_NAME} .
 
 run: debug
 	@echo -e "\033[1;36m====== start to run ======\033[0m"
@@ -35,7 +35,8 @@ clean:
 
 vet:
 	@echo -e "\033[1;36m====== make vet ======\033[0m"
-	go vet ./...
+	go vet ./framework/...
+	go vet main.go
 
 fmt:
 	@echo -e "\033[1;36m====== make fmt ======\033[0m"

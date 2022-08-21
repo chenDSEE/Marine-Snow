@@ -51,12 +51,12 @@ func (container *Container) Register(provider ServiceProvider) error {
 
 	/* create and init provider instance if need */
 	if provider.IsDefer() == false {
-		if err := provider.Init(container); err != nil {
+		if err := provider.Init(container, provider.DefaultParams(container)...); err != nil {
 			return err
 		}
 
 		newFunc := provider.NewServiceProvider(container)
-		instance, err := newFunc(provider.DefaultParams(container)...)
+		instance, err := newFunc(provider.DefaultParams(container))
 		if err != nil {
 			return err
 		}
@@ -88,11 +88,12 @@ func (container *Container) MustMake(key string) interface{} {
 	return instance
 }
 
+// TODO: MakeNew() instance can be reused will be better
 func (container *Container) MakeNew(key string, params ...interface{}) (interface{}, error) {
 	return container.make(key, params, true)
 }
 
-// TODO: lock-free to make will be better
+// TODO: lock-free to make will be better, but provider can't update when server is running
 func (container *Container) make(key string, params []interface{}, forceNew bool) (interface{}, error) {
 	/* if provider existed */
 	container.RLock()
@@ -119,6 +120,11 @@ func (container *Container) make(key string, params []interface{}, forceNew bool
 	container.Lock()
 	defer container.Unlock()
 
+	if instance, existed := container.instances[key]; existed {
+		// NOTE: should double check after write lock, avoid concurrency problem
+		return instance, nil
+	}
+
 	instance, err := container.newInstance(provider, params)
 	if err != nil {
 		return nil, err
@@ -130,12 +136,12 @@ func (container *Container) make(key string, params []interface{}, forceNew bool
 
 // create new instance, but not store into container
 func (container *Container) newInstance(provider ServiceProvider, params []interface{}) (interface{}, error) {
-	if err := provider.Init(container); err != nil {
-		return nil, err
-	}
-
 	if params == nil {
 		params = provider.DefaultParams(container)
+	}
+
+	if err := provider.Init(container, params...); err != nil {
+		return nil, err
 	}
 
 	newFunc := provider.NewServiceProvider(container)

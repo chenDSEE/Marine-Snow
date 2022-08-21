@@ -2,6 +2,7 @@ package demo
 
 import (
 	"MarineSnow/framework"
+	"fmt"
 )
 
 const Key = "counter:provider"
@@ -10,12 +11,15 @@ func (csp *CounterServiceProvider) NewServiceProvider(container framework.Servic
 	return newCounterServiceProvider
 }
 
-func (csp *CounterServiceProvider) Init(container framework.ServiceContainer) error {
-	return nil // do nothing
+func (csp *CounterServiceProvider) Init(container framework.ServiceContainer, params ...interface{}) error {
+	// just log when CounterServiceProvider creating
+	fmt.Println("create CounterServiceProvider with params:", params)
+	return nil
 }
 
 func (csp *CounterServiceProvider) IsDefer() bool {
-	return false
+	//return false
+	return true
 }
 
 func (csp *CounterServiceProvider) DefaultParams(container framework.ServiceContainer) []interface{} {

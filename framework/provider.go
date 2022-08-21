@@ -10,7 +10,7 @@ type ServiceProvider interface {
 	NewServiceProvider(container ServiceContainer) NewProviderFunc
 
 	// to setup ServiceProvider instance if need
-	Init(container ServiceContainer) error
+	Init(container ServiceContainer, params ...interface{}) error
 
 	// ture, initialize ServiceProvider intance when register
 	// false, initialize ServiceProvider instance when user call ServiceContainer.Make()

@@ -5,6 +5,7 @@
 package gin
 
 import (
+	"MarineSnow/framework"
 	"fmt"
 	"html/template"
 	"net"
@@ -78,6 +79,9 @@ const (
 // Engine is the framework's instance, it contains the muxer, middleware and configuration settings.
 // Create an instance of Engine, by using New() or Default()
 type Engine struct {
+	// MarinerSnow ServiceContainer
+	container framework.ServiceContainer
+
 	RouterGroup
 
 	// RedirectTrailingSlash enables automatic redirection if the current route can't be matched but a
@@ -179,6 +183,7 @@ var _ IRouter = &Engine{}
 func New() *Engine {
 	debugPrintWARNINGNew()
 	engine := &Engine{
+		container: framework.NewContainer(),
 		RouterGroup: RouterGroup{
 			Handlers: nil,
 			basePath: "/",
@@ -228,7 +233,7 @@ func (engine *Engine) Handler() http.Handler {
 func (engine *Engine) allocateContext() *Context {
 	v := make(Params, 0, engine.maxParams)
 	skippedNodes := make([]skippedNode, 0, engine.maxSections)
-	return &Context{engine: engine, params: &v, skippedNodes: &skippedNodes}
+	return &Context{engine: engine, params: &v, skippedNodes: &skippedNodes, container: engine.container}
 }
 
 // Delims sets template left and right delims and returns an Engine instance.

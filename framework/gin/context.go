@@ -5,6 +5,7 @@
 package gin
 
 import (
+	"MarineSnow/framework"
 	"errors"
 	"io"
 	"io/ioutil"
@@ -49,6 +50,8 @@ const abortIndex int8 = math.MaxInt8 >> 1
 // Context is the most important part of gin. It allows us to pass variables between middleware,
 // manage the flow, validate the JSON of a request and render a JSON response for example.
 type Context struct {
+	// MarineSnow ServiceContainer
+	container framework.ServiceContainer
 	writermem responseWriter
 	Request   *http.Request
 	Writer    ResponseWriter
@@ -94,6 +97,7 @@ type Context struct {
 /************************************/
 
 func (c *Context) reset() {
+	//c.container = nil // never reset, for gin.Context will be reuse
 	c.Writer = &c.writermem
 	c.Params = c.Params[:0]
 	c.handlers = nil
@@ -115,6 +119,7 @@ func (c *Context) reset() {
 // This has to be used when the context has to be passed to a goroutine.
 func (c *Context) Copy() *Context {
 	cp := Context{
+		container: c.container,
 		writermem: c.writermem,
 		Request:   c.Request,
 		Params:    c.Params,

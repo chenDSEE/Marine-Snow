@@ -1,18 +1,19 @@
 package command
 
 import (
+	"MarineSnow/app/appDemo"
 	"MarineSnow/framework/cobra"
 	"fmt"
 )
 
 var AppName string
 var ipAddr string
-var port int32
+var port string
 
 func init() {
 	appCmd.PersistentFlags().StringVarP(&AppName, "name", "n", "", "the app name")
-	appCmd.PersistentFlags().StringVarP(&ipAddr, "addr", "a", "127.0.0.1", "ip addr listen on")
-	appCmd.PersistentFlags().Int32VarP(&port, "port", "p", 80, "port listen on")
+	appCmd.PersistentFlags().StringVarP(&ipAddr, "ip", "i", "127.0.0.1", "ip addr listen on")
+	appCmd.PersistentFlags().StringVarP(&port, "port", "p", "80", "port listen on")
 	appCmd.AddCommand(appStartCmd)
 	//appCmd.AddCommand(appstopCmd) TODO:
 }
@@ -34,7 +35,8 @@ var appStartCmd = &cobra.Command{
 	Long:  "start a app register in MarineSnow",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		/* try to start app */
-		fmt.Printf("try to run app and start it, addr: %s, port: %d\n", ipAddr, port)
+		fmt.Printf("try to run app and start it, addr: %s, port: %s\n", ipAddr, port)
+		appDemo.StartAppDemo(ipAddr + ":" + port)
 		return nil
 	},
 }

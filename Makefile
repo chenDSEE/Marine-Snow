@@ -7,7 +7,7 @@
 #=================================== config ===================================#
 # path to main source code
 TARGET_PACKAGE = MarineSnow
-BINARY_NAME = server
+BINARY_NAME = MarineSnow
 
 
 #===================================  CMD  ====================================#
@@ -25,7 +25,7 @@ build:
 
 run: debug
 	@echo -e "\033[1;36m====== start to run ======\033[0m"
-	@./${BINARY_NAME}
+	@./${BINARY_NAME} app start
 
 clean:
 # go clean -i $(TARGET_PACKAGE)

@@ -6,6 +6,7 @@ import (
 
 func init() {
 	RootCmd.AddCommand(appCmd)
+	RootCmd.AddCommand(cronCmd)
 }
 
 var RootCmd = &cobra.Command{

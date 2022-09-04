@@ -20,3 +20,7 @@
 - [x] update *request_response* example to display the Handler be called
 - [ ] *route_register* example
 
+
+### feature:
+- [ ] support distribute cron job across network
+- [ ] support distribute cron job across local machine

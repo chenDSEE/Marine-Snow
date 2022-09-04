@@ -9,12 +9,12 @@ import (
 )
 
 func CpuStatus() string {
-	cpu, err := cpu.Percent(time.Second*1, false)
-	if err != nil || len(cpu) < 1 {
+	cpuSlice, err := cpu.Percent(time.Second*1, false)
+	if err != nil || len(cpuSlice) < 1 {
 		return ""
 	}
 
-	return fmt.Sprintf("[CPU:%.2f%%]", cpu[0])
+	return fmt.Sprintf("[CPU:%.2f%%]", cpuSlice[0])
 }
 
 func MemoryStatus() string {

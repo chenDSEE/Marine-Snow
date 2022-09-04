@@ -6,6 +6,7 @@ import (
 )
 
 func main() {
+	//fmt.Println("Args:", os.Args)
 	fmt.Printf("Welcome to MarineSnow, framework start now.\n")
 
 	if err := SnowCommand.RootCmd.Execute(); err != nil {

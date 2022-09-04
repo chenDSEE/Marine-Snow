@@ -13,6 +13,7 @@ require (
 	github.com/mattn/go-isatty v0.0.14
 	github.com/pelletier/go-toml/v2 v2.0.2
 	github.com/robfig/cron/v3 v3.0.1
+	github.com/sevlyar/go-daemon v0.1.6
 	github.com/shirou/gopsutil/v3 v3.22.8
 	github.com/spf13/cobra v1.5.0
 	github.com/spf13/pflag v1.0.5
@@ -28,6 +29,7 @@ require (
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
+	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421 // indirect

@@ -7,7 +7,7 @@
 #=================================== config ===================================#
 # path to main source code
 TARGET_PACKAGE = MarineSnow
-BINARY_NAME = MarineSnow
+BINARY_NAME = demoApp
 
 
 #===================================  CMD  ====================================#
@@ -45,6 +45,8 @@ fmt:
 	go fmt ./...
 
 checkout: clean vet fmt
+	rm -f ./storage/log/*
+	rm -f ./storage/runtime/*
 	@echo -e "\033[1;36m====== all format and check have finish, you can add and commit now ======\033[0m"
 	git status
 

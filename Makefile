@@ -25,7 +25,7 @@ build:
 
 run: debug
 	@echo -e "\033[1;36m====== start to run ======\033[0m"
-	@./${BINARY_NAME} app start
+	./${BINARY_NAME} app start
 
 clean:
 # go clean -i $(TARGET_PACKAGE)

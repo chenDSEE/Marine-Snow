@@ -41,28 +41,33 @@ func EnvInit(pathString string) bool {
 	/* update from .env file */
 	// default fullPath is "./config/.env"
 	pathToFile := path.Join(environ.path, environ.file)
-	file, err := os.Open(pathToFile)
-	if err == nil {
-		defer file.Close()
-		reader := bufio.NewReader(file)
 
-		for {
-			line, _, err := reader.ReadLine()
-			if err == io.EOF {
-				break
+	if _, err := os.Stat(pathToFile); os.IsNotExist(err) == false {
+		file, err := os.Open(pathToFile)
+		if err == nil {
+			defer file.Close()
+			fmt.Printf("Load .env from:[%s]\n", pathToFile)
+
+			// load each line
+			reader := bufio.NewReader(file)
+			for {
+				line, _, err := reader.ReadLine()
+				if err == io.EOF {
+					break
+				}
+
+				// .env data format:
+				// KEY_STRING=VALUE_STRING
+				pair := bytes.SplitN(line, []byte{'='}, 2)
+				if len(pair) < 2 {
+					// ignore error key-value pair
+					continue
+				}
+
+				key := string(pair[0])
+				val := string(pair[1])
+				environ.envs[key] = val
 			}
-
-			// .env data format:
-			// KEY_STRING=VALUE_STRING
-			pair := bytes.SplitN(line, []byte{'='}, 2)
-			if len(pair) < 2 {
-				// ignore error key-value pair
-				continue
-			}
-
-			key := string(pair[0])
-			val := string(pair[1])
-			environ.envs[key] = val
 		}
 	}
 

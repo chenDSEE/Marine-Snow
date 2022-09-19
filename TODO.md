@@ -8,6 +8,7 @@
 
 
 ### feature:
+- [ ] Divide configuration into framework part and app part.
 - [ ] support distribute cron job across network
 - [ ] support distribute cron job across local machine
 - [ ] An interface for each, so that framework can get related information about the registered App.

@@ -3,7 +3,6 @@ package command
 import (
 	"MarineSnow/app/appDemo"
 	"MarineSnow/framework/cobra"
-	"MarineSnow/framework/config/env"
 	"fmt"
 )
 
@@ -36,7 +35,7 @@ var appStartCmd = &cobra.Command{
 	Long:  "start a app register in MarineSnow",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		/* init configuration */
-		env.EnvInit("./config/")
+		// TODO:
 
 		/* try to start app */
 		fmt.Printf("try to run app and start it, addr: %s, port: %s\n", ipAddr, port)

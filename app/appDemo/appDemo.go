@@ -3,6 +3,7 @@
 package appDemo
 
 import (
+	"MarineSnow/framework/config"
 	"MarineSnow/framework/config/env"
 	"MarineSnow/framework/gin"
 	"MarineSnow/provider/demo"
@@ -34,6 +35,29 @@ func pairQuery(ctx *gin.Context) {
 	ctx.ISetStatusOK()
 }
 
+type appCfg struct {
+	Network networkCfg `yaml:"network"`
+	Log     logCfg     `yaml:"log"`
+	Demo    demoCfg    `yaml:"demo"`
+}
+
+type networkCfg struct {
+	Host string `yaml:"host"`
+	Ip   string `yaml:"ip"`
+	Port int    `yaml:"port"`
+	Info string `yaml:"info"`
+}
+
+type logCfg struct {
+	Path  string `yaml:"path"`
+	Level string `yaml:"level"`
+}
+
+type demoCfg struct {
+	Password  string   `yaml:"password"`
+	SliceDemo []string `yaml:"sliceDemo"`
+}
+
 func StartAppDemo(ipPort string) {
 	fmt.Printf("welcome to App-Demo, start now. Listen on [%s]\n", ipPort)
 	core := gin.New()
@@ -41,6 +65,14 @@ func StartAppDemo(ipPort string) {
 		Addr:    ipPort,
 		Handler: core,
 	}
+
+	cfgDecoder := config.NewDecoder("./config/develop/app.yaml", "yaml")
+	cfg := appCfg{}
+	err := cfgDecoder.LoadConfig(&cfg)
+	if err != nil {
+		fmt.Printf("Error to load config:[%s]\n", err.Error())
+	}
+	fmt.Printf("config:[%+v]\n", cfg)
 
 	// register CounterServiceProvider into Container
 	_ = core.Register(&demo.CounterServiceProvider{})

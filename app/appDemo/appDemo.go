@@ -54,8 +54,9 @@ type logCfg struct {
 }
 
 type demoCfg struct {
-	Password  string   `yaml:"password"`
-	SliceDemo []string `yaml:"sliceDemo"`
+	Password   string   `yaml:"password"`
+	SliceDemo  []string `yaml:"sliceDemo"`
+	NotReplace string   `yaml:"notReplace"`
 }
 
 func StartAppDemo(ipPort string) {
@@ -65,6 +66,9 @@ func StartAppDemo(ipPort string) {
 		Addr:    ipPort,
 		Handler: core,
 	}
+
+	env.EnvInit("./config/develop/")
+	//env.DumpAll()
 
 	cfgDecoder := config.NewDecoder("./config/develop/app.yaml", "yaml")
 	cfg := appCfg{}

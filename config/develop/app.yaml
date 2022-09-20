@@ -9,7 +9,8 @@ log:
   path: "./storage/log"
   level: debug
 demo:
-  password: env(DEMO_PASSWORD)
+  password: $ENV(DEMO_PASSWORD)
+  notReplace: $ENV(NOT-EXISTED)
   sliceDemo:
     - demo-string-1
     - demo-string-2

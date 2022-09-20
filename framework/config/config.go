@@ -1,7 +1,9 @@
 package config
 
 import (
+	"MarineSnow/framework/config/env"
 	"MarineSnow/framework/config/parse"
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"strings"
@@ -46,8 +48,7 @@ func NewDecoder(where string, cfgType string) *Decoder {
 	isFile := false
 	part := strings.Split(where, ".")
 	if len(part) >= 1 {
-		fts := decoder.parser.SupportFileType()
-		for _, fileType := range fts {
+		for _, fileType := range decoder.parser.SupportFileType() {
 			if part[len(part)-1] == fileType {
 				isFile = true
 				break
@@ -75,13 +76,38 @@ func (decoder *Decoder) LoadConfig(out interface{}) error {
 }
 
 func loadConfigFile(decoder *Decoder, pathTofile string, out interface{}) error {
-	fmt.Printf("file:[%s]\n", pathTofile)
+	/* check configuration file type */
+	notParse := true
+	part := strings.Split(pathTofile, ".")
+	if len(part) >= 1 {
+		for _, fileType := range decoder.parser.SupportFileType() {
+			if part[len(part)-1] == fileType {
+				notParse = false
+				break
+			}
+		}
+	}
+
+	if notParse {
+		return nil
+	}
+
 	buf, err := ioutil.ReadFile(pathTofile)
 	if err != nil {
 		return err
 	}
 
-	// TODO: update Placeholder with OS environment variable
+	//fmt.Printf("before:\n%s\n", string(buf))
+
+	// FIXME: this way too slow
+	// FIXME: if there still has some $ENV place holder not been replace
+	//        panic or error log
+	// update Placeholder with OS environment variable
+	for key, value := range env.GetAll() {
+		placeHolder := "$ENV(" + key + ")"
+		buf = bytes.ReplaceAll(buf, []byte(placeHolder), []byte(value))
+	}
+	//fmt.Printf("after:\n%s\n", string(buf))
 
 	err = decoder.parser.Unmarshal(buf, out)
 	if err != nil {

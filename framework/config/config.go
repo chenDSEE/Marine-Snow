@@ -1,8 +1,8 @@
 package config
 
 import (
+	"MarineSnow/framework/config/parse"
 	"fmt"
-	yaml "gopkg.in/yaml.v3"
 	"io/ioutil"
 	"strings"
 	"time"
@@ -20,30 +20,11 @@ import (
 // To access configuration via ConfigObj.AAA.BBB.CCC will be better here. For convenience you can define a global
 // function as shortcut for specified configuration. For example: GetAB_CCC() stand for ConfigObj.aaa.bbb.ccc
 
-type yamlParser struct {
-	cfgType string
-}
-
-func (p yamlParser) Unmarshal(in []byte, out interface{}) error {
-	// TODO: update Placeholder with OS environment variable
-
-	err := yaml.Unmarshal(in, out)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (p yamlParser) SupportFileType() []string {
-	return []string{"yaml", "yml"}
-}
-
 type Decoder struct {
 	path    string
 	file    string
 	cfgType string
-	parser  yamlParser
+	parser  parse.CfgParser
 
 	checkInterval   time.Time
 	updateChan      chan struct{}
@@ -54,13 +35,19 @@ type Decoder struct {
 func NewDecoder(where string, cfgType string) *Decoder {
 	decoder := &Decoder{
 		cfgType: cfgType,
-		parser:  yamlParser{},
+	}
+
+	decoder.parser = parse.NewCfgParser(cfgType)
+	if decoder.parser == nil {
+		fmt.Printf("Not support [%s] configuration file", cfgType)
+		return nil
 	}
 
 	isFile := false
 	part := strings.Split(where, ".")
 	if len(part) >= 1 {
-		for _, fileType := range decoder.parser.SupportFileType() {
+		fts := decoder.parser.SupportFileType()
+		for _, fileType := range fts {
 			if part[len(part)-1] == fileType {
 				isFile = true
 				break
@@ -93,6 +80,8 @@ func loadConfigFile(decoder *Decoder, pathTofile string, out interface{}) error 
 	if err != nil {
 		return err
 	}
+
+	// TODO: update Placeholder with OS environment variable
 
 	err = decoder.parser.Unmarshal(buf, out)
 	if err != nil {

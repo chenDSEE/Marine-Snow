@@ -19,6 +19,15 @@
 - [ ] remove *storage* directory.
 - [ ] remove *config* directory.
 
+### configuration file
+- [ ] support path register.
+- [ ] think about: whether a framework shall own a configuration file or not.
+- [ ] support hot update when configuration file changed.
+
+### Document
+- [ ] CHANGELOG
+- [ ] docs
+- [ ] examples
 
 ### remove file for gin version:
 **context related:**

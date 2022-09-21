@@ -67,10 +67,6 @@ func NewDecoder(where string, cfgType string) *Decoder {
 	return decoder
 }
 
-func (decoder *Decoder) MonitorEnable() {
-	panic("impl me")
-}
-
 func (decoder *Decoder) LoadConfig(out interface{}) error {
 	return loadConfigFile(decoder, decoder.file, out)
 }
@@ -118,7 +114,12 @@ func loadConfigFile(decoder *Decoder, pathTofile string, out interface{}) error 
 }
 
 // TODO: pass the parsed result out via channel(with reflact)
-func (decoder *Decoder) UpdateConfig() <-chan struct{} {
-	panic("impl me")
-	return nil
-}
+// TODO: support hot update configuration
+// TODO: support path decode
+//func (decoder *Decoder) UpdateConfig() <-chan struct{} {
+//	panic("impl me")
+//	return nil
+//}
+//func (decoder *Decoder) MonitorEnable() {
+//	panic("impl me")
+//}

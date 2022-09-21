@@ -1,0 +1,16 @@
+network:
+  host: localhost
+  ip: 127.0.0.1
+  port: 80
+#  info: not to fill
+notToParse:
+  info: empty-string
+log:
+  path: "./storage/log"
+  level: debug
+demo:
+  password: $ENV(DEMO_PASSWORD)
+  notReplace: $ENV(NOT-EXISTED)
+  sliceDemo:
+    - demo-string-1
+    - demo-string-2

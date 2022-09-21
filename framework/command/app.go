@@ -34,6 +34,9 @@ var appStartCmd = &cobra.Command{
 	Short: "start a app",
 	Long:  "start a app register in MarineSnow",
 	RunE: func(cmd *cobra.Command, args []string) error {
+		/* init configuration */
+		// TODO:
+
 		/* try to start app */
 		fmt.Printf("try to run app and start it, addr: %s, port: %s\n", ipAddr, port)
 		appDemo.StartAppDemo(ipAddr + ":" + port)

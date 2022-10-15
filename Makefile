@@ -11,6 +11,9 @@ BINARY_NAME = demoApp
 
 
 #===================================  CMD  ====================================#
+# Build all by default, even if it's not first
+.DEFAULT_GOAL := build
+
 .PHONY: debug build run clean vet fmt help checkout
 
 debug:

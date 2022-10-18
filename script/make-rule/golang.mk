@@ -10,7 +10,7 @@ GO := go
 GO_BUILD_FLAGS := -v
 
 # debug flag for dlv
-ifdef DEBUG
+ifeq ($(origin DEBUG),command line)
 	GO_BUILD_FLAGS += -gcflags="all=-N -l"
 endif
 
@@ -19,8 +19,8 @@ endif
 # 1. make build
 # 2. make build DEBUG=1
 .PHONY: go.build
-go.build:
-	@echo -e "\033[1;36m-->[CMD:go.build, go-flag:$(GO_BUILD_FLAGS), BINARY_NAME:$(BINARY_NAME)]\033[0m"
+go.build: go.vet
+	@echo -e "\033[1;36m-->[CMD:go.build, go-flag:$(GO_BUILD_FLAGS), bins:$(BINARY_NAME), root-dir:$(ROOT_DIR)]\033[0m"
 	$(GO) build $(GO_BUILD_FLAGS) -o $(BINARY_NAME) .
 
 # Usage:

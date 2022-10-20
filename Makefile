@@ -52,6 +52,8 @@ define USAGE_OPTIONS
 Options:
   DEBUG        Whether to generate debug symbols. Default is 0.
                (example: make build DEBUG=1; make run DEBUG=1)
+  RACE         Whether to enable data race detection. Default is 0.
+               (example: make build RACE=1; make run RACE=1)
 endef
 export USAGE_OPTIONS
 

@@ -14,6 +14,11 @@ ifeq ($(origin DEBUG),command line)
 	GO_BUILD_FLAGS += -gcflags="all=-N -l"
 endif
 
+# data race detection for go
+ifeq ($(origin RACE),command line)
+	GO_BUILD_FLAGS += -race
+endif
+
 #===================================  CMD target  ====================================#
 # Usage:
 # 1. make build

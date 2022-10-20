@@ -34,12 +34,14 @@ func ParseLevel(level Level) []byte {
 	}
 }
 
+// TODO: MarineSnow as a framework, should export a method for user to register self-define logger via Logger interface,
+// for some app may want web framework can out put just same as app self-define log
 // adapt for Go std log module
 type Logger interface {
 	GetLevel() Level
 	SetLevel(Level)
 	SetFormat(FormatType)
-	WithFields(Fields) Logger
+	WithFields(Fields) Logger // TODO: this should be another interface, like FieldLogger
 
 	Log(Level, ...interface{})
 	Logf(Level, string, ...interface{})
@@ -73,4 +75,8 @@ type Logger interface {
 	//Panic(v ...interface{})
 	//Panicf(format string, v ...interface{})
 	//Panicln(v ...interface{})
+
+	// TODO: like Logger.trace() should a method for logger struct, but not a method in this Logger interface
+	// a Logger interface for a framework is for user to replace framework logger with self-define logger
+	// you should not use this interface to limit and make sure logger method
 }

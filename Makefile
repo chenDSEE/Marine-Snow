@@ -2,6 +2,7 @@
 #===================================  include  ====================================#
 include script/make-rule/common.mk
 include script/make-rule/golang.mk
+include script/make-rule/tool.mk
 
 
 #===================================  target  ====================================#

@@ -14,6 +14,11 @@ ifeq ($(origin DEBUG),command line)
 	GO_BUILD_FLAGS += -gcflags="all=-N -l"
 endif
 
+# data race detection for go
+ifeq ($(origin RACE),command line)
+	GO_BUILD_FLAGS += -race
+endif
+
 #===================================  CMD target  ====================================#
 # Usage:
 # 1. make build
@@ -41,6 +46,14 @@ go.vet:
 	$(GO) vet ./app/...
 	$(GO) vet ./provider/...
 	$(GO) vet main.go
+
+# Usage:
+# 1. TODO: make checkout
+# 2. make go.lint
+.PHONY: go.lint
+go.lint: tools.verify.golangci-lint
+	@echo -e "\033[1;36m-->[CMD:golangci-lint run, root-dir:$(ROOT_DIR)]\033[0m"
+	golangci-lint run ./...
 
 # Usage:
 # 1. make checkout

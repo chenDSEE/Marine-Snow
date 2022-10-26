@@ -77,7 +77,8 @@ make checkout    # 代码提交前的清理、静态检查
 ```
 
 ## 分层设计
-![makefile-level](makefile-level.svg)
+<div align=center><img src="makefile-level.svg"/></div>
+
 整个 makefile 体系只分为两层：
 
 - 第一层是位于 `Makefile` 的命令，放的是最常用自动化功能，是第二层子命令的集合与封装。如：每次提交代码推荐运行的 `make checkout`。`make checkout` 实际上是 `make clean`、`make go.fmt`、`make go.lint` 以及 `git status` 命令的集合。这一层通常是调用其他子命令的。
@@ -138,7 +139,8 @@ golangci-lint 的配置文件为 `.golangci.yaml`，这里只是简单的调用�
 
 
 ## 工具自动检查与安装
-![tool-auto-install](tool-auto-install.svg)
+<div align=center><img src="tool-auto-install.svg"/></div>
+
 以 golangci-lint 为例，调用关系如上图。
 
 1. 执行 `go.lint` 之前先要检查 golangci-lint 是否安装

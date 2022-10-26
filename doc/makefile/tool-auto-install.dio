@@ -1,0 +1,52 @@
+<mxfile host="65bd71144e">
+    <diagram id="WqBRqizRszyl4wu_RidN" name="Page-1">
+        <mxGraphModel dx="670" dy="740" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="15" value="" style="rounded=1;whiteSpace=wrap;html=1;fontSize=15;strokeWidth=2;fillColor=none;dashed=1;strokeColor=#007FFF;" vertex="1" parent="1">
+                    <mxGeometry x="450" y="350" width="310" height="150" as="geometry"/>
+                </mxCell>
+                <mxCell id="2" value="" style="rounded=1;whiteSpace=wrap;html=1;fontSize=15;strokeWidth=2;fillColor=none;dashed=1;strokeColor=#007FFF;" vertex="1" parent="1">
+                    <mxGeometry x="270" y="350" width="140" height="150" as="geometry"/>
+                </mxCell>
+                <mxCell id="11" style="edgeStyle=none;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;fontSize=15;strokeWidth=2;" edge="1" parent="1" source="12" target="13">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="560" y="440"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="12" value="tools.verify.% 检查" style="rounded=1;strokeWidth=2;fontStyle=1;fontSize=15;" vertex="1" parent="1">
+                    <mxGeometry x="467" y="450" width="270" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="13" value="install.golangci-lint&#10;完成具体安装" style="rounded=1;strokeWidth=2;fontStyle=1;fontSize=15;" vertex="1" parent="1">
+                    <mxGeometry x="467" y="370" width="160" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="14" value="........" style="rounded=1;strokeWidth=2;fontStyle=1;fontSize=15;" vertex="1" parent="1">
+                    <mxGeometry x="647" y="370" width="90" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="20" style="edgeStyle=none;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="16" target="17">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="340" y="600"/>
+                            <mxPoint x="602" y="600"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="16" value="go.lint" style="rounded=1;strokeWidth=2;fontStyle=1;fontSize=15;" vertex="1" parent="1">
+                    <mxGeometry x="300" y="410" width="80" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="21" style="edgeStyle=none;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="17" target="12">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="17" value="tools.verify.golangci-lint" style="rounded=1;strokeWidth=2;fontStyle=1;fontSize=15;" vertex="1" parent="1">
+                    <mxGeometry x="502" y="540" width="200" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="22" value="通配符统一匹配进这个函数" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=15;fontStyle=1" vertex="1" parent="1">
+                    <mxGeometry x="600" y="510" width="210" height="30" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

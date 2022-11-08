@@ -14,8 +14,8 @@ func NewApp(name string) *msApp.App {
 }
 
 func runFunc(name string) msApp.RunFunc {
-	return func() error {
-		fmt.Printf("hello, I am %s\n", name)
+	return func(info string) error {
+		fmt.Printf("hello, I am %s. MS framework pass info[%s]\n", name, info)
 		return nil
 	}
 }

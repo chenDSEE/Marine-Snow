@@ -39,7 +39,7 @@ go.build: go.lint
 # Usage:
 # 1. make run
 # 2. make run DEBUG=1
-RUN_CMD := ./$(BINARY_NAME) app start
+RUN_CMD := ./$(BINARY_NAME)
 .PHONY: go.run
 go.run:
 	@echo -e "\033[1;36m-->[CMD:$(RUN_CMD)]\033[0m"

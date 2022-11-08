@@ -22,6 +22,14 @@ type App struct {
 	rootCmd *cobra.Command
 }
 
+// appDump just for debug purpose
+func appDump(app App) {
+	fmt.Printf("====== app.App dump ======\n")
+	fmt.Printf("Name: %s\n", app.Name)
+	fmt.Printf("description: %s\n", app.description)
+	fmt.Printf("====== app.App dump ======\n")
+}
+
 func WithRunFunc(fun RunFunc) OptionFunc {
 	return func(app *App) {
 		app.runFunc = fun
@@ -76,6 +84,7 @@ func (app *App) runCommand(cmd *cobra.Command, args []string) error {
 
 	/* execute app registered RunFunc */
 	if app.runFunc != nil {
+		appDump(*app)
 		return app.runFunc("run success")
 	}
 

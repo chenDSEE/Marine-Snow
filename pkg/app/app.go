@@ -18,16 +18,8 @@ type App struct {
 	Name        string
 	description string
 	runFunc     RunFunc
-
-	rootCmd *cobra.Command
-}
-
-// appDump just for debug purpose
-func appDump(app App) {
-	fmt.Printf("====== app.App dump ======\n")
-	fmt.Printf("Name: %s\n", app.Name)
-	fmt.Printf("description: %s\n", app.description)
-	fmt.Printf("====== app.App dump ======\n")
+	optionSet   OptionSet
+	rootCmd     *cobra.Command
 }
 
 func WithRunFunc(fun RunFunc) OptionFunc {
@@ -59,10 +51,16 @@ func NewApp(name string, opts ...OptionFunc) *App {
 }
 
 func (app *App) buildCommand() {
+	/* build basic root command */
 	app.rootCmd = &cobra.Command{
 		Use:   app.Name,
 		Short: "application " + app.Name,
 		Long:  app.description,
+	}
+
+	/* register flag for commands */
+	for _, fs := range app.optionSet.NameFlagSet().fsMap {
+		app.rootCmd.Flags().AddFlagSet(fs)
 	}
 
 	// Only run app with App.RunFunc register
@@ -81,10 +79,10 @@ func (app *App) Run() {
 
 func (app *App) runCommand(cmd *cobra.Command, args []string) error {
 	/* parse command, flag and configuration */
+	DebugAppDump(app)
 
 	/* execute app registered RunFunc */
 	if app.runFunc != nil {
-		appDump(*app)
 		return app.runFunc("run success")
 	}
 

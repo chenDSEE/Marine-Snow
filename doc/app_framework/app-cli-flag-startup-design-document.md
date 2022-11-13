@@ -6,6 +6,20 @@
 
 
 
+# 分步走
+
+- [x] 先跑起来
+
+- [x] 融合 cobra
+- [x] 融合 flag
+- [ ] 融合 viper
+- [ ] 将 flag 整理出来，避免手动 bing flag 进去 viper
+- [ ] 将 flag 按照不同功能来构建成一个个 app 的可选 option 功能。让 app 能够灵活使用
+
+
+
+
+
 
 
 
@@ -183,17 +197,4 @@ option（代码中写死的配置项）、command、flag、环境变量、配置
 
 
 
-
-
-
-
-分步走：
-
-- [x] 先跑起来
-
-- [x] 融合 cobra
-- [ ] 融合 flag
-- [ ] 融合 viper
-- [ ] 将 flag 整理出来，避免手动 bing flag 进去 viper
-- [ ] 将 flag 按照不同功能来构建成一个个 app 的可选 option 功能。让 app 能够灵活使用
 

@@ -9,12 +9,14 @@
 # 分步走
 
 - [x] 先跑起来
-
 - [x] 融合 cobra
 - [x] 融合 flag
 - [ ] 融合 viper
 - [ ] 将 flag 整理出来，避免手动 bing flag 进去 viper
 - [ ] 将 flag 按照不同功能来构建成一个个 app 的可选 option 功能。让 app 能够灵活使用
+  - [ ] option complete
+  - [ ] option Validate
+  - [ ] option 的 complete 和 Validate，pkg 都会提供一套默认的；你可以在自己的 option list 里面自由组合，甚至是选择不用 pkg 提供的默认方案，改成你自己的方案（毕竟 Option 里面所有字段都是 public 的）
 
 
 

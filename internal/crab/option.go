@@ -6,7 +6,6 @@ import (
 )
 
 type crabOptions struct {
-	nfs    *msApp.NameFlagSet
 	server msAppOption.ServerOption
 	log    msAppOption.LogOption
 }
@@ -14,16 +13,18 @@ type crabOptions struct {
 var _ msApp.OptionSet = &crabOptions{}
 
 func NewOptions() msApp.OptionSet {
-	return &crabOptions{}
+	// default value option can be changed in here, but crab no need to change those
+	return &crabOptions{
+		server: msAppOption.NewServerOption(),
+		log:    msAppOption.NewLogOption(),
+	}
 }
 
 // NameFlagSet exposing all the flag to app framework that crab wanted to register
 func (crabOpts *crabOptions) NameFlagSet() *msApp.NameFlagSet {
-	if crabOpts.nfs == nil {
-		crabOpts.nfs = &msApp.NameFlagSet{}
-		crabOpts.nfs.AddFlagSet(crabOpts.server.Name(), crabOpts.server.FlagSet())
-		crabOpts.nfs.AddFlagSet(crabOpts.log.Name(), crabOpts.log.FlagSet())
-	}
+	nfs := &msApp.NameFlagSet{}
+	nfs.AddFlagSet(crabOpts.server.Name(), crabOpts.server.FlagSet())
+	nfs.AddFlagSet(crabOpts.log.Name(), crabOpts.log.FlagSet())
 
-	return crabOpts.nfs
+	return nfs
 }

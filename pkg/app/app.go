@@ -18,8 +18,10 @@ type App struct {
 	Name        string
 	description string
 	runFunc     RunFunc
-	optionSet   OptionSet
 	rootCmd     *cobra.Command
+
+	optionSet OptionSet
+	nfs       *NameFlagSet
 }
 
 func WithRunFunc(fun RunFunc) OptionFunc {
@@ -59,7 +61,7 @@ func (app *App) buildCommand() {
 	}
 
 	/* register flag for commands */
-	for _, fs := range app.optionSet.NameFlagSet().fsMap {
+	for _, fs := range app.nfs.fsMap {
 		app.rootCmd.Flags().AddFlagSet(fs)
 	}
 

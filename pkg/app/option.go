@@ -24,6 +24,7 @@ type OptionSet interface {
 }
 
 // WithOptionSet to enable the feature that app instance wanted to enable
+// OptionSet must be provided by user, or user is hard to access the related configuration data.
 func WithOptionSet(optSet OptionSet) OptionFunc {
 	return func(app *App) {
 		app.optionSet = optSet

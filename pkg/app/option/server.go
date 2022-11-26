@@ -2,7 +2,6 @@ package option
 
 import (
 	"github.com/spf13/pflag"
-	"net"
 )
 
 const (
@@ -10,14 +9,14 @@ const (
 )
 
 type ServerOption struct {
-	IP   net.IP
-	Port int
+	IP   string `mapstructure:"IP"`
+	Port int    `mapstructure:"Port"`
 }
 
 // NewServerOption creates a new ServerOption object with default parameters.
 func NewServerOption() ServerOption {
 	return ServerOption{
-		IP:   net.ParseIP(defaultHost),
+		IP:   defaultHost,
 		Port: 80,
 	}
 }
@@ -30,8 +29,8 @@ func (opt *ServerOption) Name() string {
 func (opt *ServerOption) FlagSet() *pflag.FlagSet {
 	fs := pflag.NewFlagSet(opt.Name(), pflag.PanicOnError)
 
-	fs.IPVarP(&opt.IP, "IP", "i", opt.IP, "server host listen to")
-	fs.IntVarP(&opt.Port, "port", "p", opt.Port, "server port listen to")
+	fs.StringVar(&opt.IP, "server.ip", opt.IP, "server host listen to")
+	fs.IntVar(&opt.Port, "server.port", opt.Port, "server port listen to")
 
 	return fs
 }

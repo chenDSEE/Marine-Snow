@@ -15,13 +15,19 @@ type RunFunc func(string) error
 type OptionFunc func(*App)
 
 type App struct {
+	/* APP information */
 	Name        string
 	description string
-	runFunc     RunFunc
-	rootCmd     *cobra.Command
 
-	optionSet OptionSet
-	nfs       *NameFlagSet
+	/* APP command */
+	runFunc RunFunc
+	rootCmd *cobra.Command
+
+	/* APP option and flag */
+	optionSet    OptionSet
+	nfs          *NameFlagSet
+	noConfigFile bool
+	cfOption     configFileOption
 }
 
 func WithRunFunc(fun RunFunc) OptionFunc {
@@ -49,6 +55,13 @@ func NewApp(name string, opts ...OptionFunc) *App {
 	/* setup command for app */
 	app.buildCommand()
 
+	// app framework option
+	if app.noConfigFile == false {
+		app.cfOption = newConfigFileOption()
+		app.rootCmd.PersistentFlags().AddFlagSet(app.cfOption.FlagSet())
+		//app.nfs.AddFlagSet(app.cfOption.Name(), app.cfOption.FlagSet())
+	}
+
 	return app
 }
 
@@ -60,7 +73,6 @@ func (app *App) buildCommand() {
 		Long:  app.description,
 	}
 
-	/* register flag for commands */
 	for _, fs := range app.nfs.fsMap {
 		app.rootCmd.Flags().AddFlagSet(fs)
 	}
@@ -80,6 +92,13 @@ func (app *App) Run() {
 }
 
 func (app *App) runCommand(cmd *cobra.Command, args []string) error {
+	/* load configuration data from configuration file */
+	if app.noConfigFile == false && len(app.cfOption.name) != 0 {
+		if err := loadConfigFile(app, cmd); err != nil {
+			return err
+		}
+	}
+
 	/* parse command, flag and configuration */
 	DebugAppDump(app)
 

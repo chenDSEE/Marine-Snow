@@ -5,7 +5,7 @@ import (
 )
 
 type LogOption struct {
-	FullPathName string
+	FullPathName string `mapstructure:"path"`
 }
 
 // NewLogOption creates a new LogOption object with default parameters.
@@ -22,7 +22,7 @@ func (opt *LogOption) Name() string {
 func (opt *LogOption) FlagSet() *pflag.FlagSet {
 	fs := pflag.NewFlagSet(opt.Name(), pflag.PanicOnError)
 
-	fs.StringVarP(&opt.FullPathName, "log", "l", opt.FullPathName, "specified app log file")
+	fs.StringVar(&opt.FullPathName, "log.path", opt.FullPathName, "specified app log file")
 
 	return fs
 }

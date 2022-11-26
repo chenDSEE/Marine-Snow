@@ -5,26 +5,26 @@ import (
 	msAppOption "MarineSnow/pkg/app/option"
 )
 
-type crabOptions struct {
-	server msAppOption.ServerOption
-	log    msAppOption.LogOption
+type CrabOptions struct {
+	Server msAppOption.ServerOption `mapstructure:"Server"`
+	Log    msAppOption.LogOption    `mapstructure:"Log"`
 }
 
-var _ msApp.OptionSet = &crabOptions{}
+var _ msApp.OptionSet = &CrabOptions{}
 
 func NewOptions() msApp.OptionSet {
 	// default value option can be changed in here, but crab no need to change those
-	return &crabOptions{
-		server: msAppOption.NewServerOption(),
-		log:    msAppOption.NewLogOption(),
+	return &CrabOptions{
+		Server: msAppOption.NewServerOption(),
+		Log:    msAppOption.NewLogOption(),
 	}
 }
 
 // NameFlagSet exposing all the flag to app framework that crab wanted to register
-func (crabOpts *crabOptions) NameFlagSet() *msApp.NameFlagSet {
+func (crabOpts *CrabOptions) NameFlagSet() *msApp.NameFlagSet {
 	nfs := &msApp.NameFlagSet{}
-	nfs.AddFlagSet(crabOpts.server.Name(), crabOpts.server.FlagSet())
-	nfs.AddFlagSet(crabOpts.log.Name(), crabOpts.log.FlagSet())
+	nfs.AddFlagSet(crabOpts.Server.Name(), crabOpts.Server.FlagSet())
+	nfs.AddFlagSet(crabOpts.Log.Name(), crabOpts.Log.FlagSet())
 
 	return nfs
 }

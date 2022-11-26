@@ -10,6 +10,7 @@ func DebugAppDump(app *App) {
 	fmt.Printf("\n====== app.App dump ======\n")
 	fmt.Printf("Name: %s\n", app.Name)
 	fmt.Printf("description: %s\n", app.description)
+	fmt.Printf("configuration file: status[%v], path[%s]\n", app.noConfigFile, app.cfOption.name)
 	fmt.Printf("OptionSet:\n")
 	DebugNameFlagSetDump(app.nfs)
 	fmt.Printf("==========================\n\n")

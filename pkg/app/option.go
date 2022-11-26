@@ -15,6 +15,8 @@ type Option interface {
 var _ Option = &msAppOption.ServerOption{}
 var _ Option = &msAppOption.LogOption{}
 
+var _ Option = &configFileOption{} // not exposed
+
 // OptionSet is an abstraction for app framework to access feature that app instance wanting to enable.
 // this interface should be implemented by all app instance needing configuration file or Command flag
 type OptionSet interface {

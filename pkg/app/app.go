@@ -24,10 +24,9 @@ type App struct {
 	rootCmd *cobra.Command
 
 	/* APP option and flag */
-	optionSet    OptionSet
-	nfs          *NameFlagSet
-	noConfigFile bool
-	cfOption     configFileOption
+	optionSet OptionSet
+	nfs       *NameFlagSet
+	cfOption  configFileOption
 }
 
 func WithRunFunc(fun RunFunc) OptionFunc {
@@ -56,10 +55,8 @@ func NewApp(name string, opts ...OptionFunc) *App {
 	app.buildCommand()
 
 	// app framework option
-	if app.noConfigFile == false {
-		app.cfOption = newConfigFileOption()
+	if app.cfOption.isEnable {
 		app.rootCmd.PersistentFlags().AddFlagSet(app.cfOption.FlagSet())
-		//app.nfs.AddFlagSet(app.cfOption.Name(), app.cfOption.FlagSet())
 	}
 
 	return app
@@ -93,7 +90,7 @@ func (app *App) Run() {
 
 func (app *App) runCommand(cmd *cobra.Command, args []string) error {
 	/* load configuration data from configuration file */
-	if app.noConfigFile == false && len(app.cfOption.name) != 0 {
+	if app.cfOption.isEnable && len(app.cfOption.path) != 0 {
 		if err := loadConfigFile(app, cmd); err != nil {
 			return err
 		}

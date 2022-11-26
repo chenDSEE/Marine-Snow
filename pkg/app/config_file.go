@@ -11,25 +11,23 @@ import (
 	"github.com/spf13/viper"
 )
 
-// WithNoConfigFile disable configuration file feature
-func WithNoConfigFile() OptionFunc {
+// WithConfigFile enable configuration feature and specified path to configuration file
+func WithConfigFile(path string) OptionFunc {
 	return func(app *App) {
-		app.noConfigFile = true
+		app.cfOption = newConfigFileOption(path)
 	}
 }
 
-const (
-	defaultConfigFile = "./config.yaml"
-)
-
 type configFileOption struct {
-	name string
+	isEnable bool
+	path     string
 }
 
-// newConfigFileOption creates a new ServerOption object with default parameters.
-func newConfigFileOption() configFileOption {
+// newConfigFileOption creates a new configFileOption object with default parameters and enable.
+func newConfigFileOption(path string) configFileOption {
 	return configFileOption{
-		name: defaultConfigFile,
+		path:     path,
+		isEnable: true,
 	}
 }
 
@@ -41,14 +39,15 @@ func (opt *configFileOption) Name() string {
 func (opt *configFileOption) FlagSet() *pflag.FlagSet {
 	fs := pflag.NewFlagSet(opt.Name(), pflag.PanicOnError)
 
-	fs.StringVarP(&opt.name, "config", "c", opt.name,
+	fs.StringVarP(&opt.path, "config", "c", opt.path,
 		"path to configuration file, support JSON, TOML, YAML, HCL, or Java properties formats.")
 
 	return fs
 }
 
+// loadConfigFile load configuration file and replace ENV data in configuration file
 func loadConfigFile(app *App, cmd *cobra.Command) error {
-	viper.SetConfigFile(app.cfOption.name)
+	viper.SetConfigFile(app.cfOption.path)
 
 	if err := viper.ReadInConfig(); err != nil {
 		return err

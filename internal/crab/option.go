@@ -12,7 +12,7 @@ type CrabOptions struct {
 
 var _ msApp.OptionSet = &CrabOptions{}
 
-func NewOptions() msApp.OptionSet {
+func NewOptions() *CrabOptions {
 	// default value option can be changed in here, but crab no need to change those
 	return &CrabOptions{
 		Server: msAppOption.NewServerOption(),

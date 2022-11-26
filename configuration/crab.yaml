@@ -1,5 +1,5 @@
 server:
-#  IP: 2.2.2.2
+  IP: 2.2.2.2
   port: 67
 
 log:

@@ -1,6 +1,7 @@
 server:
   IP: 2.2.2.2
-  port: 67
+  port: MSENV(SERVER_PORT) # MSENV(SERVER_PORT) replace port with the data in OS ENV
 
+# Log config
 log:
   path: ./crab.log

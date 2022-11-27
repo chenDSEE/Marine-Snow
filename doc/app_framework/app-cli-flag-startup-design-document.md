@@ -11,12 +11,12 @@
 - [x] 先跑起来
 - [x] 融合 cobra
 - [x] 融合 flag
-- [ ] 融合 viper
+- [x] 融合 viper
   - [x] viper 能读配置文件
   - [x] pflag 能覆盖配置文件
-  - [ ] env 修饰传递给 viper 的配置文件内容
-  - [ ] 处理好没有这个 env 的异常输出（panic）
-  - [ ] pflag > env > viper 的优先级顺序
+  - [x] env 修饰传递给 viper 的配置文件内容
+  - [x] 处理好没有这个 env 的异常输出（panic）
+  - [x] pflag > env > viper 的优先级顺序
 - [ ] 将 flag 整理出来，避免手动 bing flag 进去 viper
 - [ ] 输入参数校验
 - [ ] 将 flag 按照不同功能来构建成一个个 app 的可选 option 功能。让 app 能够灵活使用

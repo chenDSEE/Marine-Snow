@@ -16,7 +16,7 @@ func NewApp(name string) (app *msApp.App) {
 		msApp.WithRunFunc(runFunc(name, opts)),
 		msApp.WithDescription(cmdDescriptopion),
 		msApp.WithOptionSet(opts),
-		msApp.WithConfigFile(""),
+		msApp.WithConfigFile(""), // not specified default configuration file
 	)
 
 	return app

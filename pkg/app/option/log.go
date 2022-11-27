@@ -26,3 +26,9 @@ func (opt *LogOption) FlagSet() *pflag.FlagSet {
 
 	return fs
 }
+
+func (opt *LogOption) Validate() []error {
+	// no need to check, do nothing
+	// TODO: Validate log level
+	return nil
+}

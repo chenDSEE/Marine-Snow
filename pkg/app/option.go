@@ -9,7 +9,8 @@ import (
 // Option is a feature that app instance can enable or not.
 type Option interface {
 	Name() string
-	FlagSet() *pflag.FlagSet
+	FlagSet() *pflag.FlagSet // all the flag set of this Option, binding to the variables
+	Validate() []error       // Validate checks validation of this Option
 }
 
 var _ Option = &msAppOption.ServerOption{}
@@ -23,6 +24,7 @@ type OptionSet interface {
 	// NameFlagSet return all the pflag.FlagSet need by app instance,
 	// app abstract framework will register them into cobra Command
 	NameFlagSet() *NameFlagSet
+	Validate() []error // Validate checks all the Option validation in this OptionSet
 }
 
 // WithOptionSet to enable the feature that app instance wanted to enable

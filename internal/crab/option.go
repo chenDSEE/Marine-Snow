@@ -28,3 +28,12 @@ func (crabOpts *CrabOptions) NameFlagSet() *msApp.NameFlagSet {
 
 	return nfs
 }
+
+func (crabOpts *CrabOptions) Validate() []error {
+	var errs []error
+
+	errs = append(errs, crabOpts.Server.Validate()...)
+	errs = append(errs, crabOpts.Log.Validate()...)
+
+	return errs
+}

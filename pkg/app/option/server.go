@@ -1,6 +1,8 @@
 package option
 
 import (
+	"errors"
+	"fmt"
 	"github.com/spf13/pflag"
 )
 
@@ -33,4 +35,15 @@ func (opt *ServerOption) FlagSet() *pflag.FlagSet {
 	fs.IntVar(&opt.Port, "server.port", opt.Port, "server port listen to")
 
 	return fs
+}
+
+func (opt *ServerOption) Validate() []error {
+	var errs []error
+
+	if opt.Port < 0 {
+		msg := fmt.Sprintf("ServerOption: port[%d], this should be positive", opt.Port)
+		errs = append(errs, errors.New(msg))
+	}
+
+	return errs
 }

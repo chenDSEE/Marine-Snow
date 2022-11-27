@@ -65,9 +65,11 @@ func NewApp(name string, opts ...OptionFunc) *App {
 func (app *App) buildCommand() {
 	/* build basic root command */
 	app.rootCmd = &cobra.Command{
-		Use:   app.Name,
-		Short: "application " + app.Name,
-		Long:  app.description,
+		Use:           app.Name,
+		Short:         "application " + app.Name,
+		Long:          app.description,
+		SilenceUsage:  true,
+		SilenceErrors: true,
 	}
 
 	for _, fs := range app.nfs.fsMap {
@@ -89,20 +91,35 @@ func (app *App) Run() {
 }
 
 func (app *App) runCommand(cmd *cobra.Command, args []string) error {
-	/* load configuration data from configuration file */
+	/* load configuration data from configuration file, and combine flag, ENV and configuration */
 	if app.cfOption.isEnable && len(app.cfOption.path) != 0 {
 		if err := loadConfigFile(app, cmd); err != nil {
 			return err
 		}
 	}
 
-	/* parse command, flag and configuration */
-	DebugAppDump(app)
+	/* check and apply option action */
+	if err := app.applyOptionSetRule(); err != nil {
+		return err
+	}
 
 	/* execute app registered RunFunc */
+	DebugAppDump(app)
 	if app.runFunc != nil {
 		return app.runFunc("run success")
 	}
 
 	return errors.New("exit command run without App.RunFunc execute")
+}
+
+func (app *App) applyOptionSetRule() error {
+	if errs := app.optionSet.Validate(); len(errs) != 0 {
+		// TODO: error in here should be merge
+		for _, err := range errs {
+			fmt.Printf("%s\n", err.Error())
+		}
+		return errors.New("fail to Validate OptionSet")
+	}
+
+	return nil
 }

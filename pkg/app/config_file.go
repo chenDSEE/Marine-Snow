@@ -50,6 +50,11 @@ func (opt *configFileOption) FlagSet() *pflag.FlagSet {
 	return fs
 }
 
+func (opt *configFileOption) Validate() []error {
+	// no need to check, do nothing
+	return nil
+}
+
 // loadConfigFile load configuration file and replace ENV data in configuration file
 // priority: flag > env > configuration. If ENV not existed, take flag default value
 func loadConfigFile(app *App, cmd *cobra.Command) error {

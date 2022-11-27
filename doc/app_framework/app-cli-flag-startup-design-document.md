@@ -17,12 +17,11 @@
   - [x] env 修饰传递给 viper 的配置文件内容
   - [x] 处理好没有这个 env 的异常输出（panic）
   - [x] pflag > env > viper 的优先级顺序
-- [ ] 将 flag 整理出来，避免手动 bing flag 进去 viper
-- [ ] 输入参数校验
-- [ ] 将 flag 按照不同功能来构建成一个个 app 的可选 option 功能。让 app 能够灵活使用
-  - [ ] option complete
-  - [ ] option Validate
-  - [ ] option 的 complete 和 Validate，pkg 都会提供一套默认的；你可以在自己的 option list 里面自由组合，甚至是选择不用 pkg 提供的默认方案，改成你自己的方案（毕竟 Option 里面所有字段都是 public 的）
+- [x] 将 flag 整理出来，避免手动 bing flag 进去 viper
+- [x] 输入参数校验
+- [x] 将 flag 按照不同功能来构建成一个个 app 的可选 option 功能。让 app 能够灵活使用
+  - [x] option Validate
+  - [x] option 的 complete 和 Validate，pkg 都会提供一套默认的；你可以在自己的 option list 里面自由组合，甚至是选择不用 pkg 提供的默认方案，改成你自己的方案（毕竟 Option 里面所有字段都是 public 的）
 
 
 
@@ -37,12 +36,12 @@
 # 需求
 
 - [ ] flag
-  - [ ] app 拥有单独的 flag 设置能力
-  - [ ] framework 可以设置通用的 flag
-  - [ ] app 能够 disable 掉部分 framework 设置的 flag
-  - [ ] 每个 app 的二进制文件都应当由相应 flag 的 help 信息
+  - [x] app 拥有单独的 flag 设置能力
+  - [x] framework 可以设置通用的 flag
+  - [x] app 能够 disable 掉部分 framework 设置的 flag
+  - [x] 每个 app 的二进制文件都应当由相应 flag 的 help 信息
   - [ ] framework 提供一个 cmd，生成默认配置文件
-  - [ ] 输入参数应当是能够进行校验的，这样就不用每次用的时候都检查一次
+  - [x] 输入参数应当是能够进行校验的，这样就不用每次用的时候都检查一次
 - [ ] 日志
   - [ ] framework 能够内部自动默认初始化 log 的能力，并提供给 app 使用
   - [ ] app 可以设置 framework 提供 log 的：
@@ -51,17 +50,17 @@
     - [ ] 文件名
     - [ ] 日志级别
     - [ ] 按级别提供 hook
-- [ ] 代码目录要易于拓展，不同 app 的代码要相互独立，不能混杂的放在一起
-- [ ] MarineSnow 设计上是可以创建多个 app 的，所以 app 相关的能力需要独立为一个单独的 pkg
+- [x] 代码目录要易于拓展，不同 app 的代码要相互独立，不能混杂的放在一起
+- [x] MarineSnow 设计上是可以创建多个 app 的，所以 app 相关的能力需要独立为一个单独的 pkg
 - [ ] makefile 要能够分别拥有多个 app 同时编译、单独编译的能力
-- [ ] app 要拥有独立的配置文件
-- [ ] 敏感配置项通过环境变量的方式进行注入
-- [ ] 配置项应当有层次，易于拓展，不易混淆
+- [x] app 要拥有独立的配置文件（框架根本没有必要占据独立的公共配置文件）
+- [x] 敏感配置项通过环境变量的方式进行注入
+- [x] 配置项应当有层次，易于拓展，不易混淆
 - [ ] 自动创建 app 模板文件（phase 3 再考虑）
   - [ ] 考虑将 app 独立抽象出来（phase 3 再考虑）
 - [ ] 暂时不支持 args
 - [ ] 多入口函数 app（通常是 ctl 工具），第三阶段在考虑拓展
-- [ ] 单入口函数 app，通常是 service
+- [x] 单入口函数 app，通常是 service
 - [ ] 配置考虑加入 remote k-v store 的支持（第三阶段）
 
 

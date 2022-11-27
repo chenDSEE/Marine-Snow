@@ -1,6 +1,6 @@
 server:
   IP: 2.2.2.2
-  port: MSENV(SERVER_PORT) # MSENV(SERVER_PORT) replace port with the data in OS ENV
+  port: 60
 
 # Log config
 log:

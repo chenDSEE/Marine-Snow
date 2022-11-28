@@ -16,7 +16,7 @@ import (
 	"os"
 )
 
-// WithConfigFile enable configuration feature and specified path to configuration file
+// WithConfigFile enable configuration feature and specified path to configuration file.
 func WithConfigFile(path string) OptionFunc {
 	return func(app *App) {
 		app.cfOption = newConfigFileOption(path)
@@ -40,7 +40,7 @@ func (opt *configFileOption) Name() string {
 	return "configFile"
 }
 
-// FlagSet create a new pflag.FlagSet for all the flag configFileOption need
+// FlagSet create a new pflag.FlagSet for all the flag configFileOption need.
 func (opt *configFileOption) FlagSet() *pflag.FlagSet {
 	fs := pflag.NewFlagSet(opt.Name(), pflag.PanicOnError)
 
@@ -102,12 +102,14 @@ func replaceENV(buf []byte) ([]byte, error) {
 		left := bytes.Index(line, []byte(MARK_LEFT))
 		if left == -1 {
 			data = append(data, line...)
+
 			continue
 		}
 
 		right := bytes.Index(line[left:], []byte(MARK_RIGHT))
 		if right == -1 {
 			data = append(data, line...)
+
 			continue
 		}
 		right += left // right should be the index of hold line
@@ -128,6 +130,7 @@ func replaceENV(buf []byte) ([]byte, error) {
 	return data, nil
 }
 
+// nolint:unused
 func dumpConfigBuf(buf []byte, desc string) {
 	fmt.Printf("\n\n>> ========== %s ========== <<\n", desc)
 	fmt.Println(string(buf))

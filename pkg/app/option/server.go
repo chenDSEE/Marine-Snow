@@ -27,7 +27,7 @@ func (opt *ServerOption) Name() string {
 	return "server"
 }
 
-// FlagSet create a new pflag.FlagSet for all the flag ServerOption need
+// FlagSet create a new pflag.FlagSet for all the flag ServerOption need.
 func (opt *ServerOption) FlagSet() *pflag.FlagSet {
 	fs := pflag.NewFlagSet(opt.Name(), pflag.PanicOnError)
 

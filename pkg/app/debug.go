@@ -5,7 +5,7 @@ import (
 	"github.com/spf13/pflag"
 )
 
-// DebugAppDump just for debug purpose to dump App
+// DebugAppDump just for debug purpose to dump App.
 func DebugAppDump(app *App) {
 	fmt.Printf("\n====== app.App dump ======\n")
 	fmt.Printf("Name: %s\n", app.Name)

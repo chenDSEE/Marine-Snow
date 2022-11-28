@@ -118,6 +118,7 @@ func (app *App) applyOptionSetRule() error {
 		for _, err := range errs {
 			fmt.Printf("%s\n", err.Error())
 		}
+
 		return errors.New("fail to Validate OptionSet")
 	}
 

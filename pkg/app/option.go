@@ -19,7 +19,7 @@ var _ Option = &msAppOption.LogOption{}
 var _ Option = &configFileOption{} // not exposed
 
 // OptionSet is an abstraction for app framework to access feature that app instance wanting to enable.
-// this interface should be implemented by all app instance needing configuration file or Command flag
+// this interface should be implemented by all app instance needing configuration file or Command flag.
 type OptionSet interface {
 	// NameFlagSet return all the pflag.FlagSet need by app instance,
 	// app abstract framework will register them into cobra Command

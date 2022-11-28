@@ -20,7 +20,7 @@ func NewOptions() *CrabOptions {
 	}
 }
 
-// NameFlagSet exposing all the flag to app framework that crab wanted to register
+// NameFlagSet exposing all the flag to app framework that crab wanted to register.
 func (crabOpts *CrabOptions) NameFlagSet() *msApp.NameFlagSet {
 	nfs := &msApp.NameFlagSet{}
 	nfs.AddFlagSet(crabOpts.Server.Name(), crabOpts.Server.FlagSet())

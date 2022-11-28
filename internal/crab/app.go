@@ -28,6 +28,7 @@ func runFunc(name string, opts *CrabOptions) msApp.RunFunc {
 
 		fmt.Printf("Server: IP[%s], port[%d]\n", opts.Server.IP, opts.Server.Port)
 		fmt.Printf("Log: path[%s]\n", opts.Log.FullPathName)
+
 		return nil
 	}
 }

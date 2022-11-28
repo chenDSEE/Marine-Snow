@@ -1,5 +1,6 @@
 #===================================  target  ====================================#
-BINARY_NAME = demoApp
+# take 'crab' as demo app
+BINARY_NAME = crab
 
 # path to main source code
 ROOT_PACKAGE = MarineSnow
@@ -32,16 +33,17 @@ endif
 .PHONY: go.build
 go.build: go.lint
 	@echo -e "\033[1;36m-->[CMD:go.build, go-flag:$(GO_BUILD_FLAGS), bins:$(BINARY_NAME), root-dir:$(ROOT_DIR)]\033[0m"
-	$(GO) build $(GO_BUILD_FLAGS) -o $(BINARY_NAME) .
+#   $(GO) build $(GO_BUILD_FLAGS) -o $(BINARY_NAME) .
+	$(GO) build $(GO_BUILD_FLAGS) -o $(BINARY_NAME) $(ROOT_PACKAGE)/cmd/crab
 
 # Usage:
 # 1. make run
 # 2. make run DEBUG=1
-RUN_CMD := ./$(BINARY_NAME) app start
+RUN_CMD := ./$(BINARY_NAME)
 .PHONY: go.run
 go.run:
 	@echo -e "\033[1;36m-->[CMD:$(RUN_CMD)]\033[0m"
-	$(RUN_CMD)
+	@$(RUN_CMD)
 
 # Usage:
 # 1. make checkout

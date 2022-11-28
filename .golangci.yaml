@@ -247,11 +247,11 @@ linters-settings:
     # Simplify code: gofmt with `-s` option.
     # Default: true
     simplify: true
-  gofumpt:
-    # Select the Go version to target.
-    # Default: "1.15"
-    # Deprecated: use the global `run.go` instead.
-    lang-version: "1.15"
+#  gofumpt:
+#    # Select the Go version to target.
+#    # Default: "1.15"
+#    # Deprecated: use the global `run.go` instead.
+#    lang-version: "1.17"
 
     # Choose whether to use the extra rules.
     # Default: false
@@ -492,7 +492,7 @@ linters:
     - gocyclo
     - godot
     - gofmt
-    - gofumpt
+#    - gofumpt  some error in Go 1.17
     - goheader
     - goprintffuncname
     - gosec

@@ -1,0 +1,7 @@
+server:
+  IP: 2.2.2.2
+  port: 60
+
+# Log config
+log:
+  path: ./crab.log
